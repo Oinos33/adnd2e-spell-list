@@ -52,15 +52,15 @@ main {
   border-radius: 6px;
   padding: 10px;
   box-shadow: 1px 1px 3px rgba(0,0,0,0.2);
-  overflow-y: auto;
-  max-height: 350px;
+  overflow: visible;       /* ✅ allow content to expand */
+  max-height: none;        /* ✅ no fixed height */
 }
+
 .spell-card pre {
-  white-space: pre-wrap;      /* Preserves line breaks but wraps text */
-  word-wrap: break-word;      /* Breaks long words if needed */
-  overflow-wrap: break-word;  /* Ensures modern browser compatibility */
-  max-height: 350px;          /* Already in your card */
-  overflow-y: auto;           /* Keeps vertical scroll if needed */
+  white-space: pre-wrap;    /* ✅ preserves line breaks and wraps */
+  word-wrap: break-word;    /* ✅ breaks long words */
+  overflow-wrap: break-word;/* ✅ modern browser compatibility */
+  overflow: visible;        /* ✅ no scrollbars */
 }
 
 .spell-card h2 {
