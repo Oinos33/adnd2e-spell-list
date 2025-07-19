@@ -1,100 +1,92 @@
-// Load your master JSON file (must be in the same /docs folder or accessible URL)
-const JSON_FILE = "AD&D2e_Master_Spell_List.json";
-
-let allSpells = [];
-
-// Load the spell data
-async function loadSpells() {
-  try {
-    const response = await fetch(JSON_FILE);
-    allSpells = await response.json();
-    renderSpells(allSpells);
-  } catch (e) {
-    document.getElementById("spellList").innerHTML =
-      `<p style="color:red">Error loading spell list: ${e}</p>`;
-  }
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f0f0f0;
+  color: #333;
+  margin: 0;
+  padding: 0;
 }
 
-// Render the spell cards
-function renderSpells(spells) {
-  const container = document.getElementById("spellList");
-  container.innerHTML = "";
-
-  if (spells.length === 0) {
-    container.innerHTML = "<p>No spells match your criteria.</p>";
-    return;
-  }
-
-  const boldLabels = [
-    "Spell Level",
-    "Class",
-    "School",
-    "Range",
-    "Duration",
-    "AOE",
-    "Casting Time",
-    "Save",
-    "Components",
-    "Source",
-    "Details",
-    "Requirements",
-    "Notes"
-  ];
-
-  spells.forEach(spell => {
-    let desc = spell.description;
-
-    // Bold important labels
-    boldLabels.forEach(label => {
-      const regex = new RegExp(`(^|\\n)(${label})(\\n)`, "gi");
-      desc = desc.replace(regex, `$1<strong>$2</strong>$3`);
-    });
-
-    const card = document.createElement("div");
-    card.className = "spell-card";
-    card.innerHTML = `
-      <h2>${spell.name}</h2>
-      <pre>${desc}</pre>
-    `;
-    container.appendChild(card);
-  });
+header {
+  background: #222;
+  color: #fff;
+  padding: 10px;
+  text-align: center;
 }
 
-// Filtering logic
-function filterSpells() {
-  const classFilter = document.getElementById("classFilter").value;
-  const levelFilter = document.getElementById("levelFilter").value;
-  const searchText = document.getElementById("searchBox").value.toLowerCase();
-
-  const filtered = allSpells.filter(spell => {
-    const desc = spell.description.toLowerCase();
-    const name = spell.name.toLowerCase();
-
-    // Class filter
-    if (classFilter !== "all" && !desc.includes(`class\n${classFilter.toLowerCase()}`)) {
-      return false;
-    }
-
-    // Level filter
-    if (levelFilter !== "all" && !desc.includes(`spell level\n${levelFilter}`)) {
-      return false;
-    }
-
-    // Search filter
-    if (searchText && !name.includes(searchText)) {
-      return false;
-    }
-
-    return true;
-  });
-
-  renderSpells(filtered);
+header h1 {
+  margin: 5px 0 10px;
+  font-size: 1.5rem;
 }
 
-// Attach filter listeners
-document.getElementById("classFilter").addEventListener("change", filterSpells);
-document.getElementById("levelFilter").addEventListener("change", filterSpells);
-document.getElementById("searchBox").addEventListener("input", filterSpells);
+#filters {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 5px;
+}
 
-// Initialize
-loadSpells();
+#filters label {
+  font-weight: bold;
+}
+
+#searchBox, select {
+  padding: 5px;
+  border-radius: 4px;
+  border: 1px solid #aaa;
+}
+
+main {
+  padding: 15px;
+}
+
+#spellList {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 15px;
+}
+
+.spell-card {
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 10px;
+  box-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+  overflow-y: auto;
+  max-height: 350px;
+}
+
+.spell-card h2 {
+  font-size: 1.1rem;
+  margin-top: 0;
+  color: #444;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 5px;
+  margin-bottom: 8px;
+}
+
+/* ✅ New 2-column table-like layout for spell descriptions */
+.spell-card pre {
+  display: grid;
+  grid-template-columns: 120px 1fr; /* Left: label, Right: value */
+  column-gap: 8px;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  font-family: monospace;
+}
+
+.spell-card strong {
+  color: #222;
+  font-weight: bold;
+  text-align: right; /* Align labels to the right */
+  padding-right: 5px;
+}
+
+footer {
+  text-align: center;
+  background: #222;
+  color: #aaa;
+  padding: 10px;
+  font-size: 0.9rem;
+}
