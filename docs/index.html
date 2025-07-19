@@ -1,1 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AD&D 2e Master Spell Browser</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>AD&D 2e Master Spell Browser</h1>
+    <div id="filters">
+      <label for="classFilter">Class:</label>
+      <select id="classFilter">
+        <option value="all">All</option>
+        <option value="Wizard">Wizard</option>
+        <option value="Priest">Priest</option>
+      </select>
+
+      <label for="levelFilter">Level:</label>
+      <select id="levelFilter">
+        <option value="all">All</option>
+        <option value="0">0 (Cantrip/Orison)</option>
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="3">3</option>
+        <option value="4">4</option>
+        <option value="5">5</option>
+        <option value="6">6</option>
+        <option value="7">7</option>
+        <option value="8">8 (Wizard only)</option>
+        <option value="9">9 (Wizard only)</option>
+      </select>
+
+      <label for="searchBox">Search:</label>
+      <input type="text" id="searchBox" placeholder="Search spell names...">
+    </div>
+  </header>
+
+  <main>
+    <div id="spellList"></div>
+  </main>
+
+  <footer>
+    <p>AD&D 2e Master Spell List | Source data from TSR AD&D 2e materials (Priest & Wizard Spell Compendiums)</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
 
