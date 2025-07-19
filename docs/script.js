@@ -3,6 +3,7 @@ const JSON_FILE = "AD&D2e_Master_Spell_List.json";
 
 let allSpells = [];
 
+// Load the spell data
 async function loadSpells() {
   try {
     const response = await fetch(JSON_FILE);
@@ -14,6 +15,7 @@ async function loadSpells() {
   }
 }
 
+// Render the spell cards
 function renderSpells(spells) {
   const container = document.getElementById("spellList");
   container.innerHTML = "";
@@ -23,17 +25,42 @@ function renderSpells(spells) {
     return;
   }
 
+  const boldLabels = [
+    "Spell Level",
+    "Class",
+    "School",
+    "Range",
+    "Duration",
+    "AOE",
+    "Casting Time",
+    "Save",
+    "Components",
+    "Source",
+    "Details",
+    "Requirements",
+    "Notes"
+  ];
+
   spells.forEach(spell => {
+    let desc = spell.description;
+
+    // Bold important labels
+    boldLabels.forEach(label => {
+      const regex = new RegExp(`(^|\\n)(${label})(\\n)`, "gi");
+      desc = desc.replace(regex, `$1<strong>$2</strong>$3`);
+    });
+
     const card = document.createElement("div");
     card.className = "spell-card";
     card.innerHTML = `
       <h2>${spell.name}</h2>
-      <pre>${spell.description}</pre>
+      <pre>${desc}</pre>
     `;
     container.appendChild(card);
   });
 }
 
+// Filtering logic
 function filterSpells() {
   const classFilter = document.getElementById("classFilter").value;
   const levelFilter = document.getElementById("levelFilter").value;
@@ -43,17 +70,17 @@ function filterSpells() {
     const desc = spell.description.toLowerCase();
     const name = spell.name.toLowerCase();
 
-    // Class check
+    // Class filter
     if (classFilter !== "all" && !desc.includes(`class\n${classFilter.toLowerCase()}`)) {
       return false;
     }
 
-    // Level check (searches for "\nX" after "Spell Level")
+    // Level filter
     if (levelFilter !== "all" && !desc.includes(`spell level\n${levelFilter}`)) {
       return false;
     }
 
-    // Search box
+    // Search filter
     if (searchText && !name.includes(searchText)) {
       return false;
     }
@@ -64,7 +91,7 @@ function filterSpells() {
   renderSpells(filtered);
 }
 
-// Attach listeners
+// Attach filter listeners
 document.getElementById("classFilter").addEventListener("change", filterSpells);
 document.getElementById("levelFilter").addEventListener("change", filterSpells);
 document.getElementById("searchBox").addEventListener("input", filterSpells);
