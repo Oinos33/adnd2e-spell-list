@@ -1,12 +1,17 @@
-// Load your master JSON file (must be in the same /docs folder or accessible URL)
 const JSON_FILE = "AD&D2e_Master_Spell_List.json";
-
 let allSpells = [];
 
 async function loadSpells() {
   try {
     const response = await fetch(JSON_FILE);
-    allSpells = await response.json();
+    const data = await response.json();
+
+    // ✅ Parse and add structured fields (class & level)
+    allSpells = data.map(spell => {
+      const parsed = parseSpell(spell);
+      return { ...spell, ...parsed };
+    });
+
     renderSpells(allSpells);
   } catch (e) {
     document.getElementById("spellList").innerHTML =
@@ -14,32 +19,26 @@ async function loadSpells() {
   }
 }
 
-function formatDescription(text) {
-  // Map full tags to short labels
-  const tagMap = {
-    "Spell Level": "Level",
-    "Class": "Class",
-    "School": "School",
-    "Range": "Range",
-    "Duration": "Dur",
-    "AOE": "AOE",
-    "Casting Time": "CT",
-    "Save": "Save",
-    "Requirements": "Req",
-    "Source": "Src",
-    "Details": "Details"
+// ✅ Extract class & level from description
+function parseSpell(spell) {
+  const desc = spell.description || "";
+  let spellClass = "Unknown";
+  let spellLevel = "Unknown";
+
+  // Look for lines like: "Class\nWizard" and "Spell Level\n3"
+  const classMatch = desc.match(/Class\s*\n([A-Za-z]+)/i);
+  const levelMatch = desc.match(/Spell Level\s*\n(\d+)/i);
+
+  if (classMatch) spellClass = classMatch[1].trim();
+  if (levelMatch) spellLevel = levelMatch[1].trim();
+
+  return {
+    _class: spellClass,
+    _level: spellLevel
   };
-
-  // Replace tags with <strong>Label</strong>
-  let formatted = text;
-  for (const [full, short] of Object.entries(tagMap)) {
-    const regex = new RegExp(`\\b${full}\\b`, "gi");
-    formatted = formatted.replace(regex, `<strong>${short}:</strong>`);
-  }
-
-  return formatted;
 }
 
+// ✅ Renders formatted spell cards with 2-column tags
 function renderSpells(spells) {
   const container = document.getElementById("spellList");
   container.innerHTML = "";
@@ -52,32 +51,53 @@ function renderSpells(spells) {
   spells.forEach(spell => {
     const card = document.createElement("div");
     card.className = "spell-card";
+
     card.innerHTML = `
       <h2>${spell.name}</h2>
-      <pre>${formatDescription(spell.description)}</pre>
+      <div class="spell-details">
+        ${formatDescription(spell.description)}
+      </div>
     `;
     container.appendChild(card);
   });
 }
 
+// ✅ Converts raw text to bolded 2-column layout
+function formatDescription(desc) {
+  if (!desc) return "";
+  return desc
+    .replace(/Spell Level/g, "<strong>Level:</strong>")
+    .replace(/Class/g, "<strong>Class:</strong>")
+    .replace(/School/g, "<strong>School:</strong>")
+    .replace(/Range/g, "<strong>Range:</strong>")
+    .replace(/Duration/g, "<strong>Dur:</strong>")
+    .replace(/AOE/g, "<strong>AOE:</strong>")
+    .replace(/Casting Time/g, "<strong>CT:</strong>")
+    .replace(/Save/g, "<strong>Save:</strong>")
+    .replace(/Components/g, "<strong>Comp:</strong>")
+    .replace(/Source/g, "<strong>Src:</strong>")
+    .replace(/\n/g, "<br>");
+}
+
+// ✅ Filters using parsed fields instead of text search
 function filterSpells() {
   const classFilter = document.getElementById("classFilter").value;
   const levelFilter = document.getElementById("levelFilter").value;
   const searchText = document.getElementById("searchBox").value.toLowerCase();
 
   const filtered = allSpells.filter(spell => {
-    const desc = spell.description.toLowerCase();
-    const name = spell.name.toLowerCase();
-
-    if (classFilter !== "all" && !desc.includes(`class\n${classFilter.toLowerCase()}`)) {
+    // Class filter
+    if (classFilter !== "all" && spell._class.toLowerCase() !== classFilter.toLowerCase()) {
       return false;
     }
 
-    if (levelFilter !== "all" && !desc.includes(`spell level\n${levelFilter}`)) {
+    // Level filter
+    if (levelFilter !== "all" && spell._level !== levelFilter) {
       return false;
     }
 
-    if (searchText && !name.includes(searchText)) {
+    // Search box
+    if (searchText && !spell.name.toLowerCase().includes(searchText)) {
       return false;
     }
 
@@ -87,10 +107,10 @@ function filterSpells() {
   renderSpells(filtered);
 }
 
-// Attach listeners
+// ✅ Event listeners
 document.getElementById("classFilter").addEventListener("change", filterSpells);
 document.getElementById("levelFilter").addEventListener("change", filterSpells);
 document.getElementById("searchBox").addEventListener("input", filterSpells);
 
-// Initialize
+// ✅ Initialize
 loadSpells();
