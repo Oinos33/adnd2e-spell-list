@@ -55,6 +55,13 @@ main {
   overflow-y: auto;
   max-height: 350px;
 }
+.spell-card pre {
+  white-space: pre-wrap;      /* Preserves line breaks but wraps text */
+  word-wrap: break-word;      /* Breaks long words if needed */
+  overflow-wrap: break-word;  /* Ensures modern browser compatibility */
+  max-height: 350px;          /* Already in your card */
+  overflow-y: auto;           /* Keeps vertical scroll if needed */
+}
 
 .spell-card h2 {
   font-size: 1.1rem;
