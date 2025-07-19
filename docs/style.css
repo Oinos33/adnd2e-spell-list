@@ -52,22 +52,37 @@ main {
   border-radius: 6px;
   padding: 10px;
   box-shadow: 1px 1px 3px rgba(0,0,0,0.2);
-  max-height: 350px;        /* ✅ fixed height */
-  overflow-y: auto;         /* ✅ vertical scroll if needed */
-}
-
-.spell-card pre {
-  white-space: pre-wrap;    /* ✅ preserves line breaks and wraps */
-  word-wrap: break-word;    /* ✅ breaks long words */
-  overflow-wrap: break-word;/* ✅ modern browser compatibility */
   max-height: 350px;
-  overflow-y: auto;
+  overflow: hidden; /* ✅ Only inner content scrolls */
 }
 
 .spell-card h2 {
   font-size: 1.1rem;
   margin-top: 0;
   color: #444;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 5px;
+  margin-bottom: 8px;
+}
+
+/* ✅ Table-like layout for details */
+.spell-card pre {
+  display: grid;
+  grid-template-columns: 90px 1fr;
+  column-gap: 8px;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  overflow-y: auto;
+  max-height: 300px;
+  font-family: monospace;
+}
+
+.spell-card strong {
+  color: #222;
+  font-weight: bold;
+  text-align: right;
+  padding-right: 5px;
 }
 
 footer {
