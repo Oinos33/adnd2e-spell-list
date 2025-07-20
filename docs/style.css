@@ -15,7 +15,7 @@ header {
 
 header h1 {
   margin: 5px 0 10px;
-  font-size: 1.5rem;
+  font-size: 1.4rem; /* ↓ 1pt smaller */
 }
 
 #filters {
@@ -52,46 +52,29 @@ main {
   border-radius: 6px;
   padding: 10px;
   box-shadow: 1px 1px 3px rgba(0,0,0,0.2);
-  max-height: 350px;
   overflow-y: auto;
+  max-height: 350px;
 }
 
 .spell-card h2 {
-  font-size: 1.3rem;
+  font-size: 1rem; /* ↓ 1pt smaller */
   margin-top: 0;
-  border-bottom: 1px solid #ddd;
-  padding-bottom: 4px;
+  color: #444;
 }
 
-.spell-details {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 4px 10px;
-  font-family: monospace;
-  font-size: 0.9rem;
-  margin-top: 5px;
-}
-
-.spell-details .row {
-  display: contents; /* Allows grid to align tag and value correctly */
-}
-
-.spell-details .full-line {
-  grid-column: span 2;
+.spell-card pre {
+  font-size: 0.8rem; /* ↓ 1pt smaller */
   white-space: pre-wrap;
   word-wrap: break-word;
+  overflow-wrap: break-word;
+  max-height: 350px;
+  overflow-y: auto;
 }
-
-.spell-details strong {
-  color: #222;
-  font-weight: bold;
-}
-
 
 footer {
   text-align: center;
   background: #222;
   color: #aaa;
   padding: 10px;
-  font-size: 0.9rem;
+  font-size: 0.8rem;
 }
