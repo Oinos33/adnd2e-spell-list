@@ -1,55 +1,61 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AD&D 2e Spell Browser</title>
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AD&D 2e Spell Reference</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <header>
-    <h1>AD&D 2e Spell Browser</h1>
-  </header>
+    <header>
+        <h1>AD&D 2e Spell Reference</h1>
+        <input type="text" id="searchInput" placeholder="Search spells by name...">
+        <button id="resetFilters">Reset Filters</button>
+    </header>
 
-  <section id="filters">
-    <div class="filter-group">
-      <label>Class:</label>
-      <div id="classFilters" class="checkbox-group"></div>
-    </div>
+    <section id="filters">
+        <div id="classFilters">
+            <h3>Class</h3>
+            <label><input type="checkbox" value="Wizard" class="filter-class"> Wizard</label>
+            <label><input type="checkbox" value="Priest" class="filter-class"> Priest</label>
+        </div>
 
-    <div class="filter-group">
-      <label>Level:</label>
-      <div id="levelFilters" class="checkbox-group"></div>
-    </div>
+        <div id="levelFilters">
+            <h3>Level</h3>
+            <select id="levelSelect">
+                <option value="">All Levels</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+                <option value="6">6</option>
+                <option value="7">7</option>
+                <option value="8">8</option>
+                <option value="9">9</option>
+            </select>
+        </div>
 
-    <div class="filter-group">
-      <label>School:</label>
-      <div id="schoolFilters" class="checkbox-group scrollable"></div>
-    </div>
+        <div id="schoolFilters">
+            <h3>School / Sphere</h3>
+            <label><input type="checkbox" value="Abjuration" class="filter-school"> Abjuration</label>
+            <label><input type="checkbox" value="Alteration" class="filter-school"> Alteration</label>
+            <label><input type="checkbox" value="Conjuration" class="filter-school"> Conjuration</label>
+            <label><input type="checkbox" value="Divination" class="filter-school"> Divination</label>
+            <label><input type="checkbox" value="Enchantment" class="filter-school"> Enchantment</label>
+            <label><input type="checkbox" value="Illusion" class="filter-school"> Illusion</label>
+            <label><input type="checkbox" value="Invocation" class="filter-school"> Invocation</label>
+            <label><input type="checkbox" value="Necromancy" class="filter-school"> Necromancy</label>
+            <label><input type="checkbox" value="Elemental" class="filter-school"> Elemental (All)</label>
+            <label><input type="checkbox" value="Elemental Fire" class="filter-school"> Elemental: Fire</label>
+            <label><input type="checkbox" value="Elemental Water" class="filter-school"> Elemental: Water</label>
+            <label><input type="checkbox" value="Elemental Earth" class="filter-school"> Elemental: Earth</label>
+            <label><input type="checkbox" value="Elemental Air" class="filter-school"> Elemental: Air</label>
+        </div>
+    </section>
 
-    <div class="filter-group">
-      <label>Sort By:</label>
-      <select id="sortBy">
-        <option value="name">Name (A-Z)</option>
-        <option value="level">Level (Low-High)</option>
-        <option value="school">School (A-Z)</option>
-      </select>
-    </div>
+    <main id="spellContainer"></main>
 
-    <div class="filter-group">
-      <label>Search:</label>
-      <input type="text" id="searchBox" placeholder="Search spells...">
-    </div>
-  </section>
-
-  <main>
-    <div id="spellList"></div>
-  </main>
-
-  <footer>
-    <p>Runeworld Campaign • AD&D 2e Reference • Fan-made</p>
-  </footer>
-
-  <script src="script.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
