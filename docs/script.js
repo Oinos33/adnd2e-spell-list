@@ -1,78 +1,91 @@
-const JSON_FILE = "AD&D2e_Master_Spell_List.json";
-let allSpells = [];
-
-async function loadSpells() {
-  try {
-    const response = await fetch(JSON_FILE);
-    allSpells = await response.json();
-    renderSpells(allSpells);
-  } catch (e) {
-    document.getElementById("spellList").innerHTML =
-      `<p style="color:red">Error loading spell list: ${e}</p>`;
-  }
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f0f0f0;
+  color: #333;
+  margin: 0;
+  padding: 0;
 }
 
-function formatStatBlock(spell) {
-  // Extract the first lines for stat block (stop at first long text)
-  const lines = spell.description.split("\n").map(l => l.trim()).filter(Boolean);
-
-  const titleComponents = lines[0];
-  const statLines = lines.slice(1, 12); // basic stat block (first ~10 lines)
-  const description = lines.slice(12).join(" ");
-
-  let formattedStats = "";
-  statLines.forEach(line => {
-    const [label, ...rest] = line.split(/[:\s]+/);
-    const value = rest.join(" ");
-    if (label && value) {
-      formattedStats += `<div class="stat-line"><span class="stat-label">${label}:</span> ${value}</div>`;
-    } else {
-      formattedStats += `<div class="stat-line">${line}</div>`;
-    }
-  });
-
-  return `
-    <h2 class="spell-title">${spell.name}</h2>
-    <div class="spell-stats">
-      ${formattedStats}
-    </div>
-    <div class="spell-desc">${description}</div>
-  `;
+header {
+  background: #222;
+  color: #fff;
+  padding: 10px;
+  text-align: center;
 }
 
-function renderSpells(spells) {
-  const container = document.getElementById("spellList");
-  container.innerHTML = "";
-
-  spells.forEach(spell => {
-    const card = document.createElement("div");
-    card.className = "spell-card";
-    card.innerHTML = formatStatBlock(spell);
-    container.appendChild(card);
-  });
+header h1 {
+  margin: 5px 0 10px;
+  font-size: 1.4rem; /* reduced by 1pt */
 }
 
-function filterSpells() {
-  const classFilter = document.getElementById("classFilter").value.toLowerCase();
-  const levelFilter = document.getElementById("levelFilter").value;
-  const searchText = document.getElementById("searchBox").value.toLowerCase();
-
-  const filtered = allSpells.filter(spell => {
-    const desc = spell.description.toLowerCase();
-    const name = spell.name.toLowerCase();
-
-    if (classFilter !== "all" && !desc.includes(`class\n${classFilter}`)) return false;
-    if (levelFilter !== "all" && !desc.includes(`spell level\n${levelFilter}`)) return false;
-    if (searchText && !name.includes(searchText)) return false;
-
-    return true;
-  });
-
-  renderSpells(filtered);
+#filters {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 5px;
 }
 
-document.getElementById("classFilter").addEventListener("change", filterSpells);
-document.getElementById("levelFilter").addEventListener("change", filterSpells);
-document.getElementById("searchBox").addEventListener("input", filterSpells);
+#filters label {
+  font-weight: bold;
+}
 
-loadSpells();
+#searchBox, select {
+  padding: 5px;
+  border-radius: 4px;
+  border: 1px solid #aaa;
+}
+
+main {
+  padding: 15px;
+}
+
+#spellList {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 15px;
+}
+
+.spell-card {
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 10px;
+  box-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+  font-size: 0.9rem; /* reduced body text by 1pt */
+}
+
+.spell-title {
+  font-size: 1.1rem; /* slightly smaller title */
+  font-weight: bold;
+  margin-bottom: 6px;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 3px;
+}
+
+.spell-stats {
+  margin-bottom: 8px;
+}
+
+.stat-line {
+  margin: 2px 0;
+}
+
+.stat-label {
+  font-weight: bold;
+  color: #222;
+}
+
+.spell-desc {
+  font-size: 0.9rem;
+  line-height: 1.3;
+  color: #444;
+}
+
+footer {
+  text-align: center;
+  background: #222;
+  color: #aaa;
+  padding: 10px;
+  font-size: 0.8rem;
+}
