@@ -1,19 +1,66 @@
+body {
+  font-family: Arial, sans-serif;
+  background: #f4f4f4;
+  margin: 0;
+  padding: 0;
+}
+
+h1 {
+  text-align: center;
+  background: #333;
+  color: white;
+  padding: 10px 0;
+  margin: 0 0 15px 0;
+}
+
+#controls {
+  max-width: 1200px;
+  margin: 0 auto 15px auto;
+  padding: 0 10px;
+}
+
+#controls label,
+#controls input,
+#controls select {
+  margin-right: 5px;
+  font-size: 0.9em;
+}
+
+#spellContainer {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 12px;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 10px;
+}
+
 .spell-card {
   background: #fff;
   border: 1px solid #ccc;
   border-radius: 4px;
   padding: 10px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-  max-height: 470px; /* increased by 30px */
-  width: 350px;
+  max-height: 470px; /* updated */
   display: flex;
   flex-direction: column;
+  overflow: hidden;
+}
+
+.spell-card h2 {
+  margin-top: 0;
+  font-size: 1.3em;
+}
+
+.spell-card div {
+  margin-bottom: 4px;
+  font-size: 0.9em;
 }
 
 .spell-card .description {
   margin-top: 8px;
   overflow-y: auto;
-  max-height: 190px; /* increased to match new card height */
+  max-height: 190px; /* updated */
   padding-right: 5px;
   font-size: 0.9em;
 }
