@@ -13,12 +13,11 @@ function renderSpells(spellArray) {
   spellArray.forEach(spell => {
     const card = document.createElement("div");
     card.className = "spell-card";
-
     const lines = spell.description.split("\n");
+
     const meta = [];
     const desc = [];
     let descStart = false;
-
     for (let line of lines) {
       if (line.startsWith("Description:")) descStart = true;
       if (descStart) {
@@ -49,43 +48,17 @@ function applyFilters() {
   const wizard = document.getElementById("wizard").checked;
   const priest = document.getElementById("priest").checked;
   const level = document.getElementById("levelFilter").value;
-
-  const wizardChecks = Array.from(document.querySelectorAll("#wizardSchools input:checked")).map(i => i.value.toLowerCase());
-  const priestChecks = Array.from(document.querySelectorAll("#priestSpheres input:checked")).map(i => i.value.toLowerCase());
-  const elementalChecks = Array.from(document.querySelectorAll("#elementalFilters input:checked")).map(i => i.value.toLowerCase());
+  const schoolChecks = Array.from(document.querySelectorAll("#filters input:checked")).map(i => i.value.toLowerCase());
 
   let filtered = spells.filter(spell => {
     const desc = spell.description.toLowerCase();
-    const name = spell.name.toLowerCase();
-
-    // Search filter
-    if (searchTerm && !name.includes(searchTerm) && !desc.includes(searchTerm)) return false;
-
-    // Class filtering
+    if (searchTerm && !desc.includes(searchTerm) && !spell.name.toLowerCase().includes(searchTerm)) return false;
     if (!wizard && desc.includes("class: wizard")) return false;
     if (!priest && desc.includes("class: priest")) return false;
-
-    // Level filter
     if (level && !desc.includes(`spell level: ${level}`)) return false;
-
-    // Wizard Schools
-    if (wizardChecks.length) {
-      const match = wizardChecks.some(check => desc.includes(check));
-      if (!match) return false;
+    if (schoolChecks.length) {
+      return schoolChecks.some(school => desc.includes(school));
     }
-
-    // Priest Spheres
-    if (priestChecks.length) {
-      const match = priestChecks.some(check => desc.includes(check));
-      if (!match) return false;
-    }
-
-    // Elemental Filters (cross-class)
-    if (elementalChecks.length) {
-      const match = elementalChecks.some(check => desc.includes(check));
-      if (!match) return false;
-    }
-
     return true;
   });
 
@@ -96,16 +69,13 @@ document.getElementById("searchInput").addEventListener("input", applyFilters);
 document.getElementById("wizard").addEventListener("change", applyFilters);
 document.getElementById("priest").addEventListener("change", applyFilters);
 document.getElementById("levelFilter").addEventListener("change", applyFilters);
-document.querySelectorAll("#wizardSchools input, #priestSpheres input, #elementalFilters input")
-  .forEach(input => input.addEventListener("change", applyFilters));
-
+document.querySelectorAll("#filters input").forEach(input => input.addEventListener("change", applyFilters));
 document.getElementById("resetFilters").addEventListener("click", () => {
   document.getElementById("searchInput").value = "";
   document.getElementById("wizard").checked = true;
   document.getElementById("priest").checked = true;
   document.getElementById("levelFilter").value = "";
-  document.querySelectorAll("#wizardSchools input, #priestSpheres input, #elementalFilters input")
-    .forEach(i => i.checked = false);
+  document.querySelectorAll("#filters input").forEach(i => i.checked = false);
   renderSpells(spells);
 });
 
