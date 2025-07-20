@@ -38,13 +38,15 @@ h1 {
 .spell-card {
   background: #fff;
   border: 1px solid #ccc;
-  border-radius: 4px;
+  border-radius: 5px;
   padding: 10px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-  max-height: 470px; /* updated */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+  /* ✅ KEY FIXES */
+  max-height: 470px;     /* Adjusted for your longer cards */
+  overflow-y: auto;      /* Forces vertical scroll when needed */
   display: flex;
   flex-direction: column;
-  overflow: hidden;
 }
 
 .spell-card h2 {
