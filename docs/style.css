@@ -1,3 +1,4 @@
+/* ===== GENERAL LAYOUT ===== */
 body {
   font-family: Arial, sans-serif;
   margin: 0;
@@ -8,51 +9,71 @@ body {
 header {
   background-color: #333;
   color: white;
-  padding: 8px 15px; /* reduced height */
+  padding: 10px;
   text-align: center;
-  font-size: 1.6rem; /* slightly smaller title */
+  font-size: 1.5rem;
   font-weight: bold;
 }
 
-/* ===== FILTERS SECTION ===== */
-#filters {
-  background-color: #f8f8f8;
-  padding: 8px 12px;
-  margin: 5px 15px 10px 15px;
-  border-radius: 5px;
-
-  display: flex;
-  flex-wrap: wrap;
-  gap: 5px 10px;
-}
-
-#filters h3 {
-  margin: 2px 0;
-  font-size: 0.85rem;
-  font-weight: bold;
-}
-
-.filter-group {
-  display: inline-block;
-  margin-right: 12px;
-}
-
-#filters label {
-  font-size: 0.8rem;
-  margin-right: 6px;
-  white-space: nowrap;
+header input, 
+header button {
+  margin-top: 8px;
+  font-size: 0.9rem;
 }
 
 #searchInput {
-  font-size: 0.8rem;
   padding: 4px;
-  width: 150px;
+  width: 180px;
+  border: none;
+  border-radius: 4px;
 }
 
 #resetFilters {
-  font-size: 0.8rem;
-  padding: 4px 6px;
+  padding: 4px 10px;
   margin-left: 5px;
+  background: #555;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+#resetFilters:hover {
+  background: #777;
+}
+
+/* ===== FILTERS SECTION ===== */
+.filters {
+  background-color: #f8f8f8;
+  margin: 10px;
+  padding: 10px 15px;
+  border-radius: 6px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.filters div {
+  flex: 1 1 200px; /* responsive blocks */
+  min-width: 200px;
+}
+
+.filters strong {
+  display: block;
+  font-size: 0.95rem;
+  margin-bottom: 5px;
+}
+
+.filters label {
+  font-size: 0.85rem;
+  display: inline-block;
+  margin-right: 8px;
+  margin-bottom: 3px;
+}
+
+.filters select {
+  font-size: 0.85rem;
+  padding: 3px;
 }
 
 /* ===== SPELL CARDS GRID ===== */
@@ -69,7 +90,7 @@ header {
   border-radius: 6px;
   padding: 10px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  height: 470px;
+  max-height: 470px; /* still 30px taller */
   overflow-y: auto;
 }
 
@@ -80,7 +101,7 @@ header {
 
 .spell-card div {
   font-size: 0.85rem;
-  margin-bottom: 3px;
+  margin-bottom: 2px;
 }
 
 .spell-card .description {
