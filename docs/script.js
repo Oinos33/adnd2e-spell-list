@@ -26,13 +26,24 @@ function renderSpells(spells) {
     const card = document.createElement("div");
     card.className = "spell-card";
 
-    // Parse description into rows
     const lines = spell.description.split("\n").filter(line => line.trim() !== "");
     let rows = "";
+    let titleComponents = "";
+
+    // Check first line for components (e.g., "Spell Name (S M V)")
+    if (lines.length > 0 && /\(.+\)/.test(lines[0])) {
+      const firstLine = lines[0].trim();
+      const match = firstLine.match(/\(([^)]+)\)/);
+      if (match) {
+        titleComponents = ` <span class="components">(${match[1]})</span>`;
+      }
+      lines.shift(); // Remove the first line to avoid repeating it
+    }
+
+    // Format tags/values
     for (let i = 0; i < lines.length; i++) {
       let line = lines[i].trim();
 
-      // If line is a "tag", format it shorter
       if (/^Spell Level$/i.test(line)) line = "Level:";
       else if (/^Class$/i.test(line)) line = "Class:";
       else if (/^School$/i.test(line)) line = "School:";
@@ -44,18 +55,16 @@ function renderSpells(spells) {
       else if (/^Requirements$/i.test(line)) line = "Req:";
       else if (/^Source$/i.test(line)) line = "Src:";
 
-      // If the line ends with a colon, treat as a tag; next line is its value
       if (line.endsWith(":") && i + 1 < lines.length) {
         rows += `<div class="row"><strong>${line}</strong><span>${lines[i + 1]}</span></div>`;
-        i++; // skip value line
+        i++;
       } else {
-        // Otherwise, just dump full line
         rows += `<div class="row full-line">${line}</div>`;
       }
     }
 
     card.innerHTML = `
-      <h2>${spell.name}</h2>
+      <h2>${spell.name}${titleComponents}</h2>
       <div class="spell-details">${rows}</div>
     `;
     container.appendChild(card);
