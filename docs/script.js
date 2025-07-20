@@ -3,6 +3,11 @@ const JSON_FILE = "AD&D2e_Master_Spell_List.json";
 let allSpells = [];
 let processedSpells = [];
 
+const knownKeys = [
+  "Spell Level", "Class", "School", "Range", "Duration", "AOE",
+  "Casting Time", "Save", "Components", "Source"
+];
+
 // -------- Load + Preprocess --------
 async function loadSpells() {
   try {
@@ -18,26 +23,25 @@ async function loadSpells() {
   }
 }
 
-// Parse description into key-value pairs
-function extractKeyValues(desc) {
-  const lines = desc.split(/\n+/);
-  const keyValues = {};
-
-  lines.forEach(line => {
-    const match = line.match(/^([A-Za-z /]+):?\s*(.+)$/);
-    if (match) {
-      const key = match[1].trim();
-      const value = match[2].trim();
-      keyValues[key] = value;
-    }
-  });
-
-  return keyValues;
-}
-
 function preprocessSpells(spells) {
   return spells.map(spell => {
-    const keyVals = extractKeyValues(spell.description);
+    const keyVals = {};
+    const lines = spell.description.split(/\n+/);
+    let descriptionLines = [];
+
+    lines.forEach(line => {
+      const match = line.match(/^([A-Za-z ]+):\s*(.+)$/);
+      if (match) {
+        const key = match[1].trim();
+        const value = match[2].trim();
+        if (knownKeys.includes(key)) {
+          keyVals[key] = value;
+          return;
+        }
+      }
+      descriptionLines.push(line);
+    });
+
     const level = keyVals["Spell Level"] || "?";
     const cls = keyVals["Class"] || "Unknown";
     const school = (keyVals["School"] || "")
@@ -49,7 +53,8 @@ function preprocessSpells(spells) {
       level: parseInt(level) || "?",
       class: cls,
       school,
-      keyValues: keyVals
+      keyValues: keyVals,
+      descriptionOnly: descriptionLines.join("\n").trim()
     };
   });
 }
@@ -125,8 +130,10 @@ function renderSpells(spells) {
     card.className = "spell-card";
 
     let detailsHTML = "";
-    for (const [key, value] of Object.entries(spell.keyValues)) {
-      detailsHTML += `<p><strong>${key}:</strong> ${value}</p>`;
+    for (const key of knownKeys) {
+      if (spell.keyValues[key]) {
+        detailsHTML += `<p><strong>${key}:</strong> ${spell.keyValues[key]}</p>`;
+      }
     }
 
     card.innerHTML = `
@@ -136,6 +143,7 @@ function renderSpells(spells) {
         <p><strong>Class:</strong> ${spell.class}</p>
         <p><strong>School:</strong> ${spell.school.join(", ")}</p>
         ${detailsHTML}
+        <p><strong>Description:</strong> ${spell.descriptionOnly}</p>
       </div>
     `;
     container.appendChild(card);
