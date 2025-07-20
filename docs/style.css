@@ -36,35 +36,28 @@ h1 {
 }
 
 .spell-card {
-  background: #fff;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  padding: 10px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-
-  /* ✅ KEY FIXES */
-  max-height: 470px;     /* Adjusted for your longer cards */
-  overflow-y: auto;      /* Forces vertical scroll when needed */
   display: flex;
   flex-direction: column;
+  width: 350px;
+  max-height: 470px; /* increased slightly to fit better */
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background: #fff;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  overflow: hidden; /* card itself doesn't scroll, only the description does */
 }
 
 .spell-card h2 {
   margin-top: 0;
-  font-size: 1.3em;
-}
-
-.spell-card div {
-  margin-bottom: 4px;
-  font-size: 0.9em;
+  font-size: 1.2rem;
 }
 
 .spell-card .description {
-  margin-top: 8px;
+  margin-top: 5px;
+  flex-grow: 1;
   overflow-y: auto;
-  max-height: 190px; /* updated */
-  padding-right: 5px;
-  font-size: 0.9em;
+  padding-right: 5px; /* space for scrollbar */
 }
 
 .spell-card .description::-webkit-scrollbar {
@@ -72,6 +65,15 @@ h1 {
 }
 
 .spell-card .description::-webkit-scrollbar-thumb {
-  background: #bbb;
+  background: #888;
   border-radius: 3px;
+}
+
+.spell-card .description::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+.spell-card div {
+  margin-bottom: 2px;
+  word-wrap: break-word;
 }
