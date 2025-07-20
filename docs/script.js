@@ -70,7 +70,11 @@ function renderSpells(spells) {
     const card = document.createElement("div");
     card.className = "spell-card";
 
-    const lines = spell.description.split("\n").filter(line => line.trim() !== "");
+    const lines = spell.description
+  .split("\n")
+  .map(line => line.trim())
+  .filter(line => line !== "" && !/^details$/i.test(line)); // remove blank lines + "Details"
+
     let rows = "";
     let titleComponents = "";
 
