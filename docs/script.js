@@ -27,25 +27,18 @@ const abbrevMap = {
   "Geometry": "Geom",
   "Wild Magic": "Wild_M",
   "(Reversible)": "(Rev)",
-  "1 segment": "1seg",
-  "1 segments": "1seg",
-  "1 round": "1rd",
-  "1 rounds": "1rd",
-  "1 turn": "1t",
-  "1 turns": "1t",
-  "1 hour": "1hr",
-  "1 hours": "1hr"
+  "1 segment": "1 seg",
+  "1 round": "1 rd",
+  "1 turn": "1 t",
+  "1 hour": "1 hr"
 };
 
 function applyAbbreviations(text) {
   let result = text;
-  // Replace full words with abbreviations
   for (const [full, abbr] of Object.entries(abbrevMap)) {
     const regex = new RegExp(full, "gi");
     result = result.replace(regex, abbr);
   }
-  // Compact patterns like "10 ft." → "10ft", "5 yds." → "5yds"
-  result = result.replace(/(\d+)\s*(ft|yds?|yd\.|yd|miles?|mi\.|mi)/gi, "$1$2");
   return result;
 }
 
@@ -62,30 +55,35 @@ function renderSpells(spells) {
     const card = document.createElement("div");
     card.className = "spell-card";
 
+    // Clean lines: remove empty + strip "Details"
     const lines = spell.description
       .split("\n")
       .map(line => line.trim())
-      .filter(line => line !== "" && !/^details$/i.test(line)) // remove "Details" line
+      .filter(line => line !== "" && !/^details$/i.test(line))
       .map(line => line.replace(/^details[:\s]*/i, ""));
 
-    let statBlockLines = [];
+    // First line after title is already in description — stat block extraction
+    let statBlock = [];
+    let descriptionStart = false;
     let descriptionLines = [];
-    let isDescription = false;
 
     lines.forEach(line => {
-      // crude check if it's statblock (has ":" or is typical short stat)
-      if (!isDescription && (/^level|^class|^school|^range|^dur|^aoe|^ct|^save|^src/i.test(line) || line.includes(":"))) {
-        statBlockLines.push(line);
+      if (
+        /^range|dur|aoe|ct|save|level|class|school|src|req/i.test(line) ||
+        /^(wizard|priest|special)/i.test(line)
+      ) {
+        statBlock.push(line);
       } else {
-        isDescription = true;
-        descriptionLines.push(line);
+        descriptionStart = true;
       }
+      if (descriptionStart) descriptionLines.push(line);
     });
 
-    const formattedStatBlock = statBlockLines
+    // Build formatted stat block
+    const formattedBlock = statBlock
       .map(line => {
-        let cleanLine = line.includes(":") ? line : line.replace(/\s+/g, " ");
-        return applyAbbreviations(cleanLine);
+        if (line.includes(":")) return applyAbbreviations(line);
+        return line; // For lines already "key: value"
       })
       .join("\n");
 
@@ -93,7 +91,7 @@ function renderSpells(spells) {
 
     card.innerHTML = `
       <h2>${applyAbbreviations(spell.name)}</h2>
-      <pre>${formattedStatBlock}\n\n${descriptionText}</pre>
+      <pre>${formattedBlock}\n\n${descriptionText}</pre>
     `;
     container.appendChild(card);
   });
