@@ -1,77 +1,97 @@
 const JSON_FILE = "AD&D2e_Master_Spell_List.json";
 
 let allSpells = [];
+let processedSpells = [];
 
+// -------- Load + Preprocess --------
 async function loadSpells() {
   try {
     const response = await fetch(JSON_FILE);
     allSpells = await response.json();
-    renderSpells(allSpells);
+    processedSpells = preprocessSpells(allSpells);
+
+    generateFilterOptions();
+    renderSpells(processedSpells);
   } catch (e) {
     document.getElementById("spellList").innerHTML =
       `<p style="color:red">Error loading spell list: ${e}</p>`;
   }
 }
 
-function parseSpell(spell) {
-  const lines = spell.description
-    .split("\n")
-    .map(line => line.trim())
-    .filter(line => line);
+// Parse Level, Class, School from description
+function preprocessSpells(spells) {
+  return spells.map(spell => {
+    const levelMatch = spell.description.match(/Spell Level\s+(\d+)/i);
+    const classMatch = spell.description.match(/Class\s+([A-Za-z]+)/i);
+    const schoolMatch = spell.description.match(/School\s+([^\n]+)/i);
 
-  // Extract components (S M V)
-  let title = spell.name;
-  const firstLine = lines[0] || "";
-  const compMatch = firstLine.match(/\(.*?\)/);
-  if (compMatch) {
-    title += ` ${compMatch[0]}`;
-  }
-
-  const labels = [
-    "Spell Level", "Class", "School", "Range", "Duration",
-    "AOE", "Casting Time", "Save", "Source"
-  ];
-
-  const statBlock = {};
-  let i = 0;
-  while (i < lines.length) {
-    const label = labels.find(lbl =>
-      lines[i].toLowerCase().startsWith(lbl.toLowerCase())
-    );
-    if (label) {
-      statBlock[label] = lines[i + 1] || "";
-      i += 2;
-    } else {
-      i++;
-    }
-  }
-
-  // Clean labels for brevity
-  const labelMap = {
-    "Spell Level": "Level",
-    "Casting Time": "CT",
-    "Duration": "Dur",
-    "Source": "Src"
-  };
-
-  let statBlockHTML = "";
-  for (let key in statBlock) {
-    const displayKey = labelMap[key] || key;
-    statBlockHTML += `<div><strong>${displayKey}:</strong> ${statBlock[key]}</div>`;
-  }
-
-  // Long description after Source
-  const srcIndex = lines.findIndex(l => l.toLowerCase().startsWith("source"));
-  const bodyText =
-    srcIndex !== -1 ? lines.slice(srcIndex + 1).join(" ") : "";
-
-  return {
-    title,
-    statBlock: statBlockHTML,
-    description: bodyText
-  };
+    return {
+      ...spell,
+      level: levelMatch ? parseInt(levelMatch[1]) : null,
+      class: classMatch ? classMatch[1] : "Unknown",
+      school: schoolMatch
+        ? schoolMatch[1].split(/[, ]+/).filter(Boolean)
+        : []
+    };
+  });
 }
 
+// -------- Filter UI Generation --------
+function generateFilterOptions() {
+  const classes = [...new Set(processedSpells.map(s => s.class))].sort();
+  const levels = [...new Set(processedSpells.map(s => s.level).filter(Boolean))].sort((a, b) => a - b);
+  const schools = [...new Set(processedSpells.flatMap(s => s.school))].sort();
+
+  populateCheckboxGroup("classFilters", classes, "filter-class");
+  populateCheckboxGroup("levelFilters", levels, "filter-level");
+  populateCheckboxGroup("schoolFilters", schools, "filter-school");
+
+  document.querySelectorAll("input[type='checkbox'], #sortBy, #searchBox")
+    .forEach(el => el.addEventListener("change", filterAndRender));
+}
+
+function populateCheckboxGroup(containerId, items, className) {
+  const container = document.getElementById(containerId);
+  container.innerHTML = "";
+  items.forEach(item => {
+    const label = document.createElement("label");
+    label.innerHTML = `<input type="checkbox" value="${item}" class="${className}"> ${item}`;
+    container.appendChild(label);
+  });
+}
+
+// -------- Filtering + Sorting --------
+function getSelectedValues(className) {
+  return [...document.querySelectorAll(`.${className}:checked`)].map(cb => cb.value);
+}
+
+function filterAndRender() {
+  const selectedClasses = getSelectedValues("filter-class");
+  const selectedLevels = getSelectedValues("filter-level").map(Number);
+  const selectedSchools = getSelectedValues("filter-school");
+  const sortBy = document.getElementById("sortBy").value;
+  const searchText = document.getElementById("searchBox").value.toLowerCase();
+
+  let filtered = processedSpells.filter(spell => {
+    return (
+      (selectedClasses.length === 0 || selectedClasses.includes(spell.class)) &&
+      (selectedLevels.length === 0 || selectedLevels.includes(spell.level)) &&
+      (selectedSchools.length === 0 || spell.school.some(s => selectedSchools.includes(s))) &&
+      (searchText === "" || spell.name.toLowerCase().includes(searchText) || spell.description.toLowerCase().includes(searchText))
+    );
+  });
+
+  // Sorting
+  filtered.sort((a, b) => {
+    if (sortBy === "level") return (a.level || 0) - (b.level || 0);
+    if (sortBy === "school") return (a.school[0] || "").localeCompare(b.school[0] || "");
+    return a.name.localeCompare(b.name);
+  });
+
+  renderSpells(filtered);
+}
+
+// -------- Render --------
 function renderSpells(spells) {
   const container = document.getElementById("spellList");
   container.innerHTML = "";
@@ -82,36 +102,16 @@ function renderSpells(spells) {
   }
 
   spells.forEach(spell => {
-    const parsed = parseSpell(spell);
     const card = document.createElement("div");
     card.className = "spell-card";
     card.innerHTML = `
-      <h2>${parsed.title}</h2>
-      <div class="stat-block">${parsed.statBlock}</div>
-      <p class="description">${parsed.description}</p>
+      <h2>${spell.name}</h2>
+      <p><strong>Level:</strong> ${spell.level || "?"} | <strong>Class:</strong> ${spell.class} | <strong>School:</strong> ${spell.school.join(", ")}</p>
+      <pre>${spell.description}</pre>
     `;
     container.appendChild(card);
   });
 }
 
-function filterSpells() {
-  const classFilter = document.getElementById("classFilter").value.toLowerCase();
-  const levelFilter = document.getElementById("levelFilter").value;
-  const searchText = document.getElementById("searchBox").value.toLowerCase();
-
-  const filtered = allSpells.filter(spell => {
-    const desc = spell.description.toLowerCase();
-    if (classFilter !== "all" && !desc.includes(`class\n${classFilter}`)) return false;
-    if (levelFilter !== "all" && !desc.includes(`spell level\n${levelFilter}`)) return false;
-    if (searchText && !spell.name.toLowerCase().includes(searchText)) return false;
-    return true;
-  });
-
-  renderSpells(filtered);
-}
-
-document.getElementById("classFilter").addEventListener("change", filterSpells);
-document.getElementById("levelFilter").addEventListener("change", filterSpells);
-document.getElementById("searchBox").addEventListener("input", filterSpells);
-
+// Init
 loadSpells();
