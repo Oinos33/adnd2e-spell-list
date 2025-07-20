@@ -8,53 +8,50 @@ body {
 header {
   background-color: #333;
   color: white;
-  padding: 15px;
+  padding: 8px 15px; /* reduced height */
   text-align: center;
-  font-size: 1.8rem;
+  font-size: 1.6rem; /* slightly smaller title */
   font-weight: bold;
 }
 
 /* ===== FILTERS SECTION ===== */
 #filters {
   background-color: #f8f8f8;
-  padding: 10px 15px;
-  margin: 0 15px 10px 15px;
+  padding: 8px 12px;
+  margin: 5px 15px 10px 15px;
   border-radius: 5px;
 
-  /* New cleaner layout */
   display: flex;
   flex-wrap: wrap;
-  gap: 8px 12px;
+  gap: 5px 10px;
 }
 
 #filters h3 {
-  margin-top: 5px;
-  margin-bottom: 3px;
-  font-size: 0.95rem;
+  margin: 2px 0;
+  font-size: 0.85rem;
   font-weight: bold;
 }
 
 .filter-group {
   display: inline-block;
-  margin-right: 15px;
-  vertical-align: top;
+  margin-right: 12px;
 }
 
 #filters label {
-  font-size: 0.85rem;
-  margin-right: 8px;
+  font-size: 0.8rem;
+  margin-right: 6px;
   white-space: nowrap;
 }
 
 #searchInput {
-  font-size: 0.85rem;
-  padding: 5px;
-  width: 170px;
+  font-size: 0.8rem;
+  padding: 4px;
+  width: 150px;
 }
 
 #resetFilters {
-  font-size: 0.85rem;
-  padding: 4px 8px;
+  font-size: 0.8rem;
+  padding: 4px 6px;
   margin-left: 5px;
 }
 
@@ -72,23 +69,23 @@ header {
   border-radius: 6px;
   padding: 10px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  height: 470px; /* fixed uniform height */
+  height: 470px;
   overflow-y: auto;
 }
 
 .spell-card h2 {
-  font-size: 1.2rem;
-  margin-bottom: 8px;
+  font-size: 1.1rem;
+  margin-bottom: 6px;
 }
 
 .spell-card div {
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   margin-bottom: 3px;
 }
 
 .spell-card .description {
-  margin-top: 8px;
-  font-size: 0.9rem;
+  margin-top: 6px;
+  font-size: 0.85rem;
 }
 
 .spell-card strong {
