@@ -19,15 +19,14 @@ function parseSpell(spell) {
     .map(line => line.trim())
     .filter(line => line);
 
-  // Extract (S M V) or similar from first line
+  // Extract components (S M V)
   let title = spell.name;
-  let components = "";
-  if (/\(.*\)/.test(lines[0])) {
-    const match = lines[0].match(/\((.*?)\)/);
-    if (match) components = match[0];
+  const firstLine = lines[0] || "";
+  const compMatch = firstLine.match(/\(.*?\)/);
+  if (compMatch) {
+    title += ` ${compMatch[0]}`;
   }
 
-  // Stat labels we care about
   const labels = [
     "Spell Level", "Class", "School", "Range", "Duration",
     "AOE", "Casting Time", "Save", "Source"
@@ -36,9 +35,8 @@ function parseSpell(spell) {
   const statBlock = {};
   let i = 0;
   while (i < lines.length) {
-    const line = lines[i];
     const label = labels.find(lbl =>
-      line.toLowerCase().startsWith(lbl.toLowerCase())
+      lines[i].toLowerCase().startsWith(lbl.toLowerCase())
     );
     if (label) {
       statBlock[label] = lines[i + 1] || "";
@@ -48,27 +46,29 @@ function parseSpell(spell) {
     }
   }
 
-  // Build readable stat block
+  // Clean labels for brevity
+  const labelMap = {
+    "Spell Level": "Level",
+    "Casting Time": "CT",
+    "Duration": "Dur",
+    "Source": "Src"
+  };
+
   let statBlockHTML = "";
   for (let key in statBlock) {
-    const shortKey = key
-      .replace("Spell Level", "Level")
-      .replace("Casting Time", "CT")
-      .replace("Duration", "Dur");
-    statBlockHTML += `<div><strong>${shortKey}:</strong> ${statBlock[key]}</div>`;
+    const displayKey = labelMap[key] || key;
+    statBlockHTML += `<div><strong>${displayKey}:</strong> ${statBlock[key]}</div>`;
   }
 
-  // Description (everything after Source)
+  // Long description after Source
   const srcIndex = lines.findIndex(l => l.toLowerCase().startsWith("source"));
-  let descriptionText = "";
-  if (srcIndex !== -1) {
-    descriptionText = lines.slice(srcIndex + 1).join(" ");
-  }
+  const bodyText =
+    srcIndex !== -1 ? lines.slice(srcIndex + 1).join(" ") : "";
 
   return {
-    title: components ? `${title} ${components}` : title,
+    title,
     statBlock: statBlockHTML,
-    description: descriptionText
+    description: bodyText
   };
 }
 
@@ -88,7 +88,7 @@ function renderSpells(spells) {
     card.innerHTML = `
       <h2>${parsed.title}</h2>
       <div class="stat-block">${parsed.statBlock}</div>
-      <div class="description">${parsed.description}</div>
+      <p class="description">${parsed.description}</p>
     `;
     container.appendChild(card);
   });
