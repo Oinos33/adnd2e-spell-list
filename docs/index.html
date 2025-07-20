@@ -13,15 +13,15 @@
     <button id="resetFilters">Reset Filters</button>
   </header>
 
-  <section class="filters">
+  <section id="filters">
+    <!-- Class & Level -->
     <div class="filter-group">
-      <h3>Class</h3>
+      <strong>Class</strong><br>
       <label><input type="checkbox" id="wizard" checked> Wizard</label>
       <label><input type="checkbox" id="priest" checked> Priest</label>
     </div>
-
     <div class="filter-group">
-      <h3>Level</h3>
+      <strong>Level</strong><br>
       <select id="levelFilter">
         <option value="">All Levels</option>
         <option value="1">1</option>
@@ -36,22 +36,62 @@
       </select>
     </div>
 
+    <!-- Wizard Schools -->
     <div class="filter-group">
-      <h3>School / Sphere</h3>
-      <div id="schoolFilters">
+      <strong>Wizard Schools</strong><br>
+      <div id="wizardFilters">
         <label><input type="checkbox" value="Abjuration"> Abjuration</label>
         <label><input type="checkbox" value="Alteration"> Alteration</label>
-        <label><input type="checkbox" value="Conjuration"> Conjuration</label>
+        <label><input type="checkbox" value="Conjuration/Summoning"> Conjuration/Summoning</label>
+        <label><input type="checkbox" value="Enchantment/Charm"> Enchantment/Charm</label>
+        <label><input type="checkbox" value="Illusion/Phantasm"> Illusion/Phantasm</label>
+        <label><input type="checkbox" value="Invocation/Evocation"> Invocation/Evocation</label>
         <label><input type="checkbox" value="Divination"> Divination</label>
-        <label><input type="checkbox" value="Enchantment"> Enchantment</label>
-        <label><input type="checkbox" value="Illusion"> Illusion</label>
-        <label><input type="checkbox" value="Invocation"> Invocation</label>
         <label><input type="checkbox" value="Necromancy"> Necromancy</label>
-        <label><input type="checkbox" value="Elemental (All)"> Elemental (All)</label>
-        <label><input type="checkbox" value="Elemental: Fire"> Elemental: Fire</label>
-        <label><input type="checkbox" value="Elemental: Water"> Elemental: Water</label>
-        <label><input type="checkbox" value="Elemental: Earth"> Elemental: Earth</label>
-        <label><input type="checkbox" value="Elemental: Air"> Elemental: Air</label>
+        <label><input type="checkbox" value="Wild Magic"> Wild Magic</label>
+      </div>
+    </div>
+
+    <!-- Priest Spheres -->
+    <div class="filter-group">
+      <strong>Priest Spheres</strong><br>
+      <div id="priestFilters">
+        <label><input type="checkbox" value="All"> All</label>
+        <label><input type="checkbox" value="Animal"> Animal</label>
+        <label><input type="checkbox" value="Astral"> Astral</label>
+        <label><input type="checkbox" value="Chaos"> Chaos</label>
+        <label><input type="checkbox" value="Charm"> Charm</label>
+        <label><input type="checkbox" value="Combat"> Combat</label>
+        <label><input type="checkbox" value="Creation"> Creation</label>
+        <label><input type="checkbox" value="Divination"> Divination</label>
+        <label><input type="checkbox" value="Elemental"> Elemental</label>
+        <label><input type="checkbox" value="Guardian"> Guardian</label>
+        <label><input type="checkbox" value="Healing"> Healing</label>
+        <label><input type="checkbox" value="Law"> Law</label>
+        <label><input type="checkbox" value="Necromantic"> Necromantic</label>
+        <label><input type="checkbox" value="Numbers"> Numbers</label>
+        <label><input type="checkbox" value="Plant"> Plant</label>
+        <label><input type="checkbox" value="Protection"> Protection</label>
+        <label><input type="checkbox" value="Summoning"> Summoning</label>
+        <label><input type="checkbox" value="Sun"> Sun</label>
+        <label><input type="checkbox" value="Thought"> Thought</label>
+        <label><input type="checkbox" value="Time"> Time</label>
+        <label><input type="checkbox" value="Travelers"> Travelers</label>
+        <label><input type="checkbox" value="War"> War</label>
+        <label><input type="checkbox" value="Wards"> Wards</label>
+        <label><input type="checkbox" value="Weather"> Weather</label>
+      </div>
+    </div>
+
+    <!-- Elemental Filters -->
+    <div class="filter-group">
+      <strong>Elemental (Both Classes)</strong><br>
+      <div id="elementalFilters">
+        <label><input type="checkbox" value="Elemental"> Elemental (All)</label>
+        <label><input type="checkbox" value="Elemental Air"> Elemental: Air</label>
+        <label><input type="checkbox" value="Elemental Earth"> Elemental: Earth</label>
+        <label><input type="checkbox" value="Elemental Fire"> Elemental: Fire</label>
+        <label><input type="checkbox" value="Elemental Water"> Elemental: Water</label>
       </div>
     </div>
   </section>
