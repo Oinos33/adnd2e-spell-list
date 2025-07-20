@@ -73,7 +73,8 @@ function renderSpells(spells) {
     const lines = spell.description
   .split("\n")
   .map(line => line.trim())
-  .filter(line => line !== "" && !/^details$/i.test(line)); // remove blank lines + "Details"
+  .filter(line => line !== "" && !/^details\b/i.test(line)) // removes "Details" or "Details:" lines
+  .map(line => line.replace(/^details[:\s]*/i, "")); // removes "Details" at start but keeps the actual value
 
     let rows = "";
     let titleComponents = "";
