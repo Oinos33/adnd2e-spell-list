@@ -1,99 +1,73 @@
 body {
   font-family: Arial, sans-serif;
   margin: 0;
-  padding: 0;
   background: #f2f2f2;
 }
 
 header {
   background: #333;
-  color: #fff;
+  color: white;
   padding: 10px;
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
-  gap: 10px;
 }
 
-h1 {
+header h1 {
   margin: 0;
-  font-size: 1.5em;
 }
 
-header input {
+#searchInput {
   padding: 5px;
   width: 200px;
 }
 
-header button {
+#resetFilters {
+  margin-left: 10px;
   padding: 5px 10px;
   background: #555;
-  color: #fff;
+  color: white;
   border: none;
   cursor: pointer;
 }
 
-header button:hover {
-  background: #777;
-}
-
-.filters {
-  padding: 10px;
+#filters {
   display: flex;
   flex-wrap: wrap;
-  gap: 20px;
+  padding: 10px;
   background: #fff;
   border-bottom: 1px solid #ccc;
 }
 
 .filter-group {
-  display: flex;
-  flex-direction: column;
+  margin-right: 20px;
+  margin-bottom: 10px;
 }
 
-.filter-group h3 {
-  margin: 0 0 5px 0;
-  font-size: 1em;
-  color: #333;
-}
-
-#schoolFilters {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  max-width: 800px;
-}
-
-main {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  padding: 10px;
+.filter-group strong {
+  display: block;
+  margin-bottom: 5px;
 }
 
 .spell-card {
-  background: #fff;
+  background: white;
   border: 1px solid #ccc;
-  border-radius: 4px;
   padding: 10px;
-  margin: 5px;
-  width: 300px;
-  max-height: 400px;
+  margin: 10px;
+  width: 280px;
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
   overflow-y: auto;
+  max-height: 300px;
+  display: inline-block;
+  vertical-align: top;
 }
 
 .spell-card h2 {
+  font-size: 1.2em;
   margin-top: 0;
 }
 
-.spell-card strong {
-  display: inline-block;
-  min-width: 90px;
-  color: #444;
-}
-
-.spell-card .description {
-  margin-top: 5px;
-  padding-top: 5px;
-  border-top: 1px solid #ddd;
+.description {
+  margin-top: 10px;
+  font-size: 0.9em;
 }
