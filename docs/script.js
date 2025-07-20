@@ -3,7 +3,7 @@ const JSON_FILE = "AD&D2e_Master_Spell_List.json";
 
 let allSpells = [];
 
-// Acronym mappings for stat blocks (only these are transformed)
+// Acronym mappings for stat blocks only
 const acronyms = {
   "Abjuration": "Abj",
   "Alteration": "Alt",
@@ -21,8 +21,8 @@ const acronyms = {
   "1 round": "1rd",
   "1 turn": "1t",
   "1 hour": "1hr",
-  "1 turn/level": "1t/level",
   "1 round/level": "1rd/level",
+  "1 turn/level": "1t/level",
   "1 hour/level": "1hr/level"
 };
 
@@ -59,15 +59,14 @@ function renderSpells(spells) {
     const card = document.createElement("div");
     card.className = "spell-card";
 
-    // Clean description lines
     const lines = spell.description
       .split("\n")
       .map(line => line.trim())
-      .filter(line => line !== "" && !/^details$/i.test(line)); // remove "Details"
+      .filter(line => line !== "" && !/^details$/i.test(line));
 
     let rows = "";
     lines.forEach(line => {
-      const parts = line.split(/:(.+)/); // try to split at first colon
+      const parts = line.split(/:(.+)/); // split "Label: value"
       if (parts.length > 1) {
         const label = parts[0].trim();
         const value = applyAcronyms(parts[1].trim());
