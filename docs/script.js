@@ -1,10 +1,20 @@
-// Load your master JSON file (must be in the same /docs folder or accessible URL)
 const JSON_FILE = "AD&D2e_Master_Spell_List.json";
 
 let allSpells = [];
 
-// Acronym mappings for stat blocks (only these are transformed)
-const acronyms = {
+async function loadSpells() {
+  try {
+    const response = await fetch(JSON_FILE);
+    allSpells = await response.json();
+    renderSpells(allSpells);
+  } catch (e) {
+    document.getElementById("spellList").innerHTML =
+      `<p style="color:red">Error loading spell list: ${e}</p>`;
+  }
+}
+
+// Abbreviations map for stat block
+const abbrevMap = {
   "Abjuration": "Abj",
   "Alteration": "Alt",
   "Conjuration/Summoning": "Conj/Sum",
@@ -16,34 +26,27 @@ const acronyms = {
   "Alchemy": "Alch",
   "Geometry": "Geom",
   "Wild Magic": "Wild_M",
-  "Reversible": "Rev",
+  "(Reversible)": "(Rev)",
   "1 segment": "1seg",
+  "1 segments": "1seg",
   "1 round": "1rd",
+  "1 rounds": "1rd",
   "1 turn": "1t",
+  "1 turns": "1t",
   "1 hour": "1hr",
-  "1 turn/level": "1t/level",
-  "1 round/level": "1rd/level",
-  "1 hour/level": "1hr/level"
+  "1 hours": "1hr"
 };
 
-function applyAcronyms(text) {
-  let updated = text;
-  for (const [key, value] of Object.entries(acronyms)) {
-    const regex = new RegExp(key, "gi");
-    updated = updated.replace(regex, value);
+function applyAbbreviations(text) {
+  let result = text;
+  // Replace full words with abbreviations
+  for (const [full, abbr] of Object.entries(abbrevMap)) {
+    const regex = new RegExp(full, "gi");
+    result = result.replace(regex, abbr);
   }
-  return updated;
-}
-
-async function loadSpells() {
-  try {
-    const response = await fetch(JSON_FILE);
-    allSpells = await response.json();
-    renderSpells(allSpells);
-  } catch (e) {
-    document.getElementById("spellList").innerHTML =
-      `<p style="color:red">Error loading spell list: ${e}</p>`;
-  }
+  // Compact patterns like "10 ft." → "10ft", "5 yds." → "5yds"
+  result = result.replace(/(\d+)\s*(ft|yds?|yd\.|yd|miles?|mi\.|mi)/gi, "$1$2");
+  return result;
 }
 
 function renderSpells(spells) {
@@ -59,55 +62,69 @@ function renderSpells(spells) {
     const card = document.createElement("div");
     card.className = "spell-card";
 
-    // Clean description lines
     const lines = spell.description
       .split("\n")
       .map(line => line.trim())
-      .filter(line => line !== "" && !/^details$/i.test(line)); // remove "Details"
+      .filter(line => line !== "" && !/^details$/i.test(line)) // remove "Details" line
+      .map(line => line.replace(/^details[:\s]*/i, ""));
 
-    let rows = "";
+    let statBlockLines = [];
+    let descriptionLines = [];
+    let isDescription = false;
+
     lines.forEach(line => {
-      const parts = line.split(/:(.+)/); // try to split at first colon
-      if (parts.length > 1) {
-        const label = parts[0].trim();
-        const value = applyAcronyms(parts[1].trim());
-        rows += `<div><strong>${label}:</strong> ${value}</div>`;
+      // crude check if it's statblock (has ":" or is typical short stat)
+      if (!isDescription && (/^level|^class|^school|^range|^dur|^aoe|^ct|^save|^src/i.test(line) || line.includes(":"))) {
+        statBlockLines.push(line);
       } else {
-        rows += `<div>${applyAcronyms(line)}</div>`;
+        isDescription = true;
+        descriptionLines.push(line);
       }
     });
 
+    const formattedStatBlock = statBlockLines
+      .map(line => {
+        let cleanLine = line.includes(":") ? line : line.replace(/\s+/g, " ");
+        return applyAbbreviations(cleanLine);
+      })
+      .join("\n");
+
+    const descriptionText = applyAbbreviations(descriptionLines.join("\n"));
+
     card.innerHTML = `
-      <h2>${spell.name}</h2>
-      ${rows}
+      <h2>${applyAbbreviations(spell.name)}</h2>
+      <pre>${formattedStatBlock}\n\n${descriptionText}</pre>
     `;
     container.appendChild(card);
   });
 }
 
 function filterSpells() {
-  const classFilter = document.getElementById("classFilter").value.toLowerCase();
+  const classFilter = document.getElementById("classFilter").value;
   const levelFilter = document.getElementById("levelFilter").value;
   const searchText = document.getElementById("searchBox").value.toLowerCase();
 
   const filtered = allSpells.filter(spell => {
-    const name = spell.name.toLowerCase();
     const desc = spell.description.toLowerCase();
+    const name = spell.name.toLowerCase();
 
-    if (classFilter !== "all" && !desc.includes(`class\n${classFilter}`)) return false;
-    if (levelFilter !== "all" && !desc.includes(`spell level\n${levelFilter}`)) return false;
-    if (searchText && !name.includes(searchText)) return false;
-
+    if (classFilter !== "all" && !desc.includes(`class\n${classFilter.toLowerCase()}`)) {
+      return false;
+    }
+    if (levelFilter !== "all" && !desc.includes(`spell level\n${levelFilter}`)) {
+      return false;
+    }
+    if (searchText && !name.includes(searchText)) {
+      return false;
+    }
     return true;
   });
 
   renderSpells(filtered);
 }
 
-// Attach listeners
 document.getElementById("classFilter").addEventListener("change", filterSpells);
 document.getElementById("levelFilter").addEventListener("change", filterSpells);
 document.getElementById("searchBox").addEventListener("input", filterSpells);
 
-// Initialize
 loadSpells();
