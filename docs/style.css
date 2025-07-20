@@ -20,34 +20,41 @@ header {
   padding: 10px 15px;
   margin: 0 15px 10px 15px;
   border-radius: 5px;
+
+  /* New cleaner layout */
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 12px;
 }
 
 #filters h3 {
-  margin-top: 10px;
-  margin-bottom: 5px;
-  font-size: 1rem;
+  margin-top: 5px;
+  margin-bottom: 3px;
+  font-size: 0.95rem;
+  font-weight: bold;
 }
 
 .filter-group {
   display: inline-block;
-  margin-right: 20px;
+  margin-right: 15px;
   vertical-align: top;
 }
 
 #filters label {
-  font-size: 0.9rem;
-  margin-right: 10px;
+  font-size: 0.85rem;
+  margin-right: 8px;
+  white-space: nowrap;
 }
 
 #searchInput {
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   padding: 5px;
-  width: 180px;
+  width: 170px;
 }
 
 #resetFilters {
-  font-size: 0.9rem;
-  padding: 5px 10px;
+  font-size: 0.85rem;
+  padding: 4px 8px;
   margin-left: 5px;
 }
 
@@ -65,7 +72,7 @@ header {
   border-radius: 6px;
   padding: 10px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  max-height: 470px; /* Increased slightly by ~30px as requested */
+  height: 470px; /* fixed uniform height */
   overflow-y: auto;
 }
 
