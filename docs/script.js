@@ -1,91 +1,108 @@
-body {
-  font-family: Arial, sans-serif;
-  background-color: #f0f0f0;
-  color: #333;
-  margin: 0;
-  padding: 0;
+const JSON_FILE = "AD&D2e_Master_Spell_List.json";
+let allSpells = [];
+
+// Load JSON properly
+async function loadSpells() {
+  try {
+    const response = await fetch(JSON_FILE);
+    allSpells = await response.json();
+    renderSpells(allSpells);
+  } catch (e) {
+    document.getElementById("spellList").innerHTML =
+      `<p style="color:red">Error loading spell list: ${e}</p>`;
+  }
 }
 
-header {
-  background: #222;
-  color: #fff;
-  padding: 10px;
-  text-align: center;
+// Render cards
+function renderSpells(spells) {
+  const container = document.getElementById("spellList");
+  container.innerHTML = "";
+
+  if (spells.length === 0) {
+    container.innerHTML = "<p>No spells match your criteria.</p>";
+    return;
+  }
+
+  spells.forEach(spell => {
+    const card = document.createElement("div");
+    card.className = "spell-card";
+
+    // Title line
+    const title = `<h2>${spell.name}${spell.components ? ` (${spell.components.toLowerCase().replace(/ /g, "_")})` : ""}</h2>`;
+
+    // Stat block (only show if field exists)
+    const fields = [
+      ["Level", spell.level],
+      ["Class", spell.class],
+      ["School", shortenSchool(spell.school)],
+      ["Range", spell.range],
+      ["Dur", formatDuration(spell.duration)],
+      ["AOE", spell.aoe],
+      ["CT", formatDuration(spell.ct)],
+      ["Save", spell.save],
+      ["Src", spell.src]
+    ]
+      .filter(([_, value]) => value && value.trim() !== "")
+      .map(([label, value]) => `<div><strong>${label}:</strong> ${value}</div>`)
+      .join("");
+
+    const description = spell.description
+      ? `<div class="description">${spell.description}</div>`
+      : "";
+
+    card.innerHTML = title + `<div class="stat-block">${fields}</div>` + description;
+    container.appendChild(card);
+  });
 }
 
-header h1 {
-  margin: 5px 0 10px;
-  font-size: 1.4rem; /* reduced by 1pt */
+// Filter logic
+function filterSpells() {
+  const classFilter = document.getElementById("classFilter").value;
+  const levelFilter = document.getElementById("levelFilter").value;
+  const searchText = document.getElementById("searchBox").value.toLowerCase();
+
+  const filtered = allSpells.filter(spell => {
+    if (classFilter !== "all" && spell.class.toLowerCase() !== classFilter.toLowerCase()) return false;
+    if (levelFilter !== "all" && spell.level !== levelFilter) return false;
+    if (searchText && !spell.name.toLowerCase().includes(searchText)) return false;
+    return true;
+  });
+
+  renderSpells(filtered);
 }
 
-#filters {
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-  flex-wrap: wrap;
-  margin-top: 5px;
+// === Helpers ===
+
+// Abbreviate schools
+function shortenSchool(school) {
+  if (!school) return "";
+  return school
+    .replace(/Enchantment\/Charm/i, "Ench/Charm")
+    .replace(/Alteration/i, "Alt")
+    .replace(/Conjuration\/Summoning/i, "Conj/Sum")
+    .replace(/Divination/i, "Div")
+    .replace(/Illusion\/Phantasm/i, "Illus/Phant")
+    .replace(/Invocation\/Evocation/i, "Invoc/Evoc")
+    .replace(/Necromancy/i, "Necr")
+    .replace(/Alchemy/i, "Alch")
+    .replace(/Geometry/i, "Geom")
+    .replace(/Wild Magic/i, "Wild_M");
 }
 
-#filters label {
-  font-weight: bold;
+// Normalize duration/ct spacing (1rd, 1seg, etc.)
+function formatDuration(text) {
+  if (!text) return "";
+  return text
+    .replace(/\b(\d+)\s*rds?\b/gi, "$1rd")
+    .replace(/\b(\d+)\s*hrs?\b/gi, "$1hr")
+    .replace(/\b(\d+)\s*segs?\b/gi, "$1seg")
+    .replace(/\b(\d+)\s*turns?\b/gi, "$1t");
 }
 
-#searchBox, select {
-  padding: 5px;
-  border-radius: 4px;
-  border: 1px solid #aaa;
-}
+// Event listeners
+document.getElementById("classFilter").addEventListener("change", filterSpells);
+document.getElementById("levelFilter").addEventListener("change", filterSpells);
+document.getElementById("searchBox").addEventListener("input", filterSpells);
 
-main {
-  padding: 15px;
-}
-
-#spellList {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 15px;
-}
-
-.spell-card {
-  background: #fff;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  padding: 10px;
-  box-shadow: 1px 1px 3px rgba(0,0,0,0.2);
-  font-size: 0.9rem; /* reduced body text by 1pt */
-}
-
-.spell-title {
-  font-size: 1.1rem; /* slightly smaller title */
-  font-weight: bold;
-  margin-bottom: 6px;
-  border-bottom: 1px solid #ddd;
-  padding-bottom: 3px;
-}
-
-.spell-stats {
-  margin-bottom: 8px;
-}
-
-.stat-line {
-  margin: 2px 0;
-}
-
-.stat-label {
-  font-weight: bold;
-  color: #222;
-}
-
-.spell-desc {
-  font-size: 0.9rem;
-  line-height: 1.3;
-  color: #444;
-}
-
-footer {
-  text-align: center;
-  background: #222;
-  color: #aaa;
-  padding: 10px;
-  font-size: 0.8rem;
-}
+// Initialize
+loadSpells();
