@@ -1,32 +1,5 @@
 let spells = [];
 
-const wizardSchoolsList = [
-  "Abjuration", "Alteration", "Conjuration/Summoning", "Enchantment/Charm",
-  "Illusion/Phantasm", "Invocation/Evocation", "Divination",
-  "Necromancy", "Wild Magic", "Elemental Air", "Elemental Earth",
-  "Elemental Fire", "Elemental Water"
-];
-
-const priestSpheresList = [
-  "All", "Animal", "Astral", "Chaos", "Charm", "Combat", "Creation", "Divination",
-  "Elemental", "Guardian", "Healing", "Law", "Necromantic", "Numbers", "Plant",
-  "Protection", "Summoning", "Sun", "Thought", "Time", "Travelers", "War",
-  "Wards", "Weather"
-];
-
-// Populate checkboxes
-function populateFilters() {
-  const wizardContainer = document.getElementById("wizardSchools");
-  wizardContainer.innerHTML = wizardSchoolsList
-    .map(s => `<label><input type="checkbox" value="${s.toLowerCase()}"> ${s}</label>`)
-    .join(" ");
-
-  const priestContainer = document.getElementById("priestSpheres");
-  priestContainer.innerHTML = priestSpheresList
-    .map(s => `<label><input type="checkbox" value="${s.toLowerCase()}"> ${s}</label>`)
-    .join(" ");
-}
-
 async function loadSpells() {
   const response = await fetch("AD&D2e_Master_Spell_List.json");
   spells = await response.json();
@@ -36,8 +9,6 @@ async function loadSpells() {
 function renderSpells(spellArray) {
   const container = document.getElementById("spellContainer");
   container.innerHTML = "";
-  document.getElementById("spellCount").innerText =
-    `Showing ${spellArray.length} of ${spells.length} spells`;
 
   spellArray.forEach(spell => {
     const card = document.createElement("div");
@@ -77,38 +48,43 @@ function applyFilters() {
   const searchTerm = document.getElementById("searchInput").value.toLowerCase();
   const wizard = document.getElementById("wizard").checked;
   const priest = document.getElementById("priest").checked;
-  const wizardLevel = document.getElementById("wizardLevelFilter").value;
-  const priestLevel = document.getElementById("priestLevelFilter").value;
+  const level = document.getElementById("levelFilter").value;
 
-  const wizardChecks = Array.from(document.querySelectorAll("#wizardSchools input:checked")).map(i => i.value);
-  const priestChecks = Array.from(document.querySelectorAll("#priestSpheres input:checked")).map(i => i.value);
-  const elementalChecks = Array.from(document.querySelectorAll(".elemental-filters input:checked")).map(i => i.value);
+  const wizardChecks = Array.from(document.querySelectorAll("#wizardSchools input:checked")).map(i => i.value.toLowerCase());
+  const priestChecks = Array.from(document.querySelectorAll("#priestSpheres input:checked")).map(i => i.value.toLowerCase());
+  const elementalChecks = Array.from(document.querySelectorAll("#elementalFilters input:checked")).map(i => i.value.toLowerCase());
 
   let filtered = spells.filter(spell => {
     const desc = spell.description.toLowerCase();
     const name = spell.name.toLowerCase();
 
     // Search filter
-    if (searchTerm && !desc.includes(searchTerm) && !name.includes(searchTerm)) return false;
+    if (searchTerm && !name.includes(searchTerm) && !desc.includes(searchTerm)) return false;
 
-    // Class filter
+    // Class filtering
     if (!wizard && desc.includes("class: wizard")) return false;
     if (!priest && desc.includes("class: priest")) return false;
 
-    // Level filters
-    if (wizardLevel && desc.includes("class: wizard") && !desc.includes(`spell level: ${wizardLevel}`)) return false;
-    if (priestLevel && desc.includes("class: priest") && !desc.includes(`spell level: ${priestLevel}`)) return false;
+    // Level filter
+    if (level && !desc.includes(`spell level: ${level}`)) return false;
 
-    // Wizard school filter
-    if (wizardChecks.length && desc.includes("class: wizard") &&
-      !wizardChecks.some(s => desc.includes(s))) return false;
+    // Wizard Schools
+    if (wizardChecks.length) {
+      const match = wizardChecks.some(check => desc.includes(check));
+      if (!match) return false;
+    }
 
-    // Priest sphere filter
-    if (priestChecks.length && desc.includes("class: priest") &&
-      !priestChecks.some(s => desc.includes(s))) return false;
+    // Priest Spheres
+    if (priestChecks.length) {
+      const match = priestChecks.some(check => desc.includes(check));
+      if (!match) return false;
+    }
 
-    // Elemental filter
-    if (elementalChecks.length && !elementalChecks.some(e => desc.includes(e))) return false;
+    // Elemental Filters (cross-class)
+    if (elementalChecks.length) {
+      const match = elementalChecks.some(check => desc.includes(check));
+      if (!match) return false;
+    }
 
     return true;
   });
@@ -119,21 +95,18 @@ function applyFilters() {
 document.getElementById("searchInput").addEventListener("input", applyFilters);
 document.getElementById("wizard").addEventListener("change", applyFilters);
 document.getElementById("priest").addEventListener("change", applyFilters);
-document.getElementById("wizardLevelFilter").addEventListener("change", applyFilters);
-document.getElementById("priestLevelFilter").addEventListener("change", applyFilters);
-document.querySelectorAll(".elemental-filters input").forEach(i => i.addEventListener("change", applyFilters));
+document.getElementById("levelFilter").addEventListener("change", applyFilters);
+document.querySelectorAll("#wizardSchools input, #priestSpheres input, #elementalFilters input")
+  .forEach(input => input.addEventListener("change", applyFilters));
 
 document.getElementById("resetFilters").addEventListener("click", () => {
   document.getElementById("searchInput").value = "";
   document.getElementById("wizard").checked = true;
   document.getElementById("priest").checked = true;
-  document.getElementById("wizardLevelFilter").value = "";
-  document.getElementById("priestLevelFilter").value = "";
-  document.querySelectorAll("#wizardSchools input, #priestSpheres input, .elemental-filters input")
+  document.getElementById("levelFilter").value = "";
+  document.querySelectorAll("#wizardSchools input, #priestSpheres input, #elementalFilters input")
     .forEach(i => i.checked = false);
   renderSpells(spells);
 });
 
-populateFilters();
 loadSpells();
-
