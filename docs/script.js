@@ -2,7 +2,7 @@
 let spells = [];
 
 async function loadSpells() {
-  const response = await fetch("AD&D2e_Master_Spell_List.json");
+  const response = await fetch("./AD&D2e_Master_Spell_List.json");
   spells = await response.json();
   renderSpells(spells);
 }
