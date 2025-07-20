@@ -18,20 +18,38 @@ async function loadSpells() {
   }
 }
 
-// Parse Level, Class, School from description
+// Parse description into key-value pairs
+function extractKeyValues(desc) {
+  const lines = desc.split(/\n+/);
+  const keyValues = {};
+
+  lines.forEach(line => {
+    const match = line.match(/^([A-Za-z /]+):?\s*(.+)$/);
+    if (match) {
+      const key = match[1].trim();
+      const value = match[2].trim();
+      keyValues[key] = value;
+    }
+  });
+
+  return keyValues;
+}
+
 function preprocessSpells(spells) {
   return spells.map(spell => {
-    const levelMatch = spell.description.match(/Spell Level\s+(\d+)/i);
-    const classMatch = spell.description.match(/Class\s+([A-Za-z]+)/i);
-    const schoolMatch = spell.description.match(/School\s+([^\n]+)/i);
+    const keyVals = extractKeyValues(spell.description);
+    const level = keyVals["Spell Level"] || "?";
+    const cls = keyVals["Class"] || "Unknown";
+    const school = (keyVals["School"] || "")
+      .split(/[, ]+/)
+      .filter(Boolean);
 
     return {
       ...spell,
-      level: levelMatch ? parseInt(levelMatch[1]) : null,
-      class: classMatch ? classMatch[1] : "Unknown",
-      school: schoolMatch
-        ? schoolMatch[1].split(/[, ]+/).filter(Boolean)
-        : []
+      level: parseInt(level) || "?",
+      class: cls,
+      school,
+      keyValues: keyVals
     };
   });
 }
@@ -83,7 +101,6 @@ function filterAndRender() {
     );
   });
 
-  // Sorting
   filtered.sort((a, b) => {
     if (sortBy === "level") return (a.level || 0) - (b.level || 0);
     if (sortBy === "school") return (a.school[0] || "").localeCompare(b.school[0] || "");
@@ -106,12 +123,20 @@ function renderSpells(spells) {
   spells.forEach(spell => {
     const card = document.createElement("div");
     card.className = "spell-card";
+
+    let detailsHTML = "";
+    for (const [key, value] of Object.entries(spell.keyValues)) {
+      detailsHTML += `<p><strong>${key}:</strong> ${value}</p>`;
+    }
+
     card.innerHTML = `
       <h2>${spell.name}</h2>
-      <p><strong>Level:</strong> ${spell.level || "?"} |
-         <strong>Class:</strong> ${spell.class} |
-         <strong>School:</strong> ${spell.school.join(", ")}</p>
-      <div class="description">${spell.description}</div>
+      <div class="spell-details">
+        <p><strong>Level:</strong> ${spell.level}</p>
+        <p><strong>Class:</strong> ${spell.class}</p>
+        <p><strong>School:</strong> ${spell.school.join(", ")}</p>
+        ${detailsHTML}
+      </div>
     `;
     container.appendChild(card);
   });
