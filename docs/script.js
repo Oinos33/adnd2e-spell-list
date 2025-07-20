@@ -1,39 +1,5 @@
-// Load your master JSON file (must be in the same /docs folder or accessible URL)
 const JSON_FILE = "AD&D2e_Master_Spell_List.json";
-
 let allSpells = [];
-
-// Acronym mappings for stat blocks only
-const acronyms = {
-  "Abjuration": "Abj",
-  "Alteration": "Alt",
-  "Conjuration/Summoning": "Conj/Sum",
-  "Divination": "Div",
-  "Enchantment/Charm": "Ench/Charm",
-  "Illusion/Phantasm": "Illus/Phant",
-  "Invocation/Evocation": "Invoc/Evoc",
-  "Necromancy": "Necr",
-  "Alchemy": "Alch",
-  "Geometry": "Geom",
-  "Wild Magic": "Wild_M",
-  "Reversible": "Rev",
-  "1 segment": "1seg",
-  "1 round": "1rd",
-  "1 turn": "1t",
-  "1 hour": "1hr",
-  "1 round/level": "1rd/level",
-  "1 turn/level": "1t/level",
-  "1 hour/level": "1hr/level"
-};
-
-function applyAcronyms(text) {
-  let updated = text;
-  for (const [key, value] of Object.entries(acronyms)) {
-    const regex = new RegExp(key, "gi");
-    updated = updated.replace(regex, value);
-  }
-  return updated;
-}
 
 async function loadSpells() {
   try {
@@ -46,40 +12,42 @@ async function loadSpells() {
   }
 }
 
+function formatStatBlock(spell) {
+  // Extract the first lines for stat block (stop at first long text)
+  const lines = spell.description.split("\n").map(l => l.trim()).filter(Boolean);
+
+  const titleComponents = lines[0];
+  const statLines = lines.slice(1, 12); // basic stat block (first ~10 lines)
+  const description = lines.slice(12).join(" ");
+
+  let formattedStats = "";
+  statLines.forEach(line => {
+    const [label, ...rest] = line.split(/[:\s]+/);
+    const value = rest.join(" ");
+    if (label && value) {
+      formattedStats += `<div class="stat-line"><span class="stat-label">${label}:</span> ${value}</div>`;
+    } else {
+      formattedStats += `<div class="stat-line">${line}</div>`;
+    }
+  });
+
+  return `
+    <h2 class="spell-title">${spell.name}</h2>
+    <div class="spell-stats">
+      ${formattedStats}
+    </div>
+    <div class="spell-desc">${description}</div>
+  `;
+}
+
 function renderSpells(spells) {
   const container = document.getElementById("spellList");
   container.innerHTML = "";
 
-  if (spells.length === 0) {
-    container.innerHTML = "<p>No spells match your criteria.</p>";
-    return;
-  }
-
   spells.forEach(spell => {
     const card = document.createElement("div");
     card.className = "spell-card";
-
-    const lines = spell.description
-      .split("\n")
-      .map(line => line.trim())
-      .filter(line => line !== "" && !/^details$/i.test(line));
-
-    let rows = "";
-    lines.forEach(line => {
-      const parts = line.split(/:(.+)/); // split "Label: value"
-      if (parts.length > 1) {
-        const label = parts[0].trim();
-        const value = applyAcronyms(parts[1].trim());
-        rows += `<div><strong>${label}:</strong> ${value}</div>`;
-      } else {
-        rows += `<div>${applyAcronyms(line)}</div>`;
-      }
-    });
-
-    card.innerHTML = `
-      <h2>${spell.name}</h2>
-      ${rows}
-    `;
+    card.innerHTML = formatStatBlock(spell);
     container.appendChild(card);
   });
 }
@@ -90,8 +58,8 @@ function filterSpells() {
   const searchText = document.getElementById("searchBox").value.toLowerCase();
 
   const filtered = allSpells.filter(spell => {
-    const name = spell.name.toLowerCase();
     const desc = spell.description.toLowerCase();
+    const name = spell.name.toLowerCase();
 
     if (classFilter !== "all" && !desc.includes(`class\n${classFilter}`)) return false;
     if (levelFilter !== "all" && !desc.includes(`spell level\n${levelFilter}`)) return false;
@@ -103,10 +71,8 @@ function filterSpells() {
   renderSpells(filtered);
 }
 
-// Attach listeners
 document.getElementById("classFilter").addEventListener("change", filterSpells);
 document.getElementById("levelFilter").addEventListener("change", filterSpells);
 document.getElementById("searchBox").addEventListener("input", filterSpells);
 
-// Initialize
 loadSpells();
