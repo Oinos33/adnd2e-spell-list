@@ -77,7 +77,9 @@ function filterAndRender() {
       (selectedClasses.length === 0 || selectedClasses.includes(spell.class)) &&
       (selectedLevels.length === 0 || selectedLevels.includes(spell.level)) &&
       (selectedSchools.length === 0 || spell.school.some(s => selectedSchools.includes(s))) &&
-      (searchText === "" || spell.name.toLowerCase().includes(searchText) || spell.description.toLowerCase().includes(searchText))
+      (searchText === "" ||
+        spell.name.toLowerCase().includes(searchText) ||
+        spell.description.toLowerCase().includes(searchText))
     );
   });
 
@@ -106,8 +108,10 @@ function renderSpells(spells) {
     card.className = "spell-card";
     card.innerHTML = `
       <h2>${spell.name}</h2>
-      <p><strong>Level:</strong> ${spell.level || "?"} | <strong>Class:</strong> ${spell.class} | <strong>School:</strong> ${spell.school.join(", ")}</p>
-      <pre>${spell.description}</pre>
+      <p><strong>Level:</strong> ${spell.level || "?"} |
+         <strong>Class:</strong> ${spell.class} |
+         <strong>School:</strong> ${spell.school.join(", ")}</p>
+      <div class="description">${spell.description}</div>
     `;
     container.appendChild(card);
   });
