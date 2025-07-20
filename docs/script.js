@@ -3,7 +3,7 @@ const JSON_FILE = "AD&D2e_Master_Spell_List.json";
 
 let allSpells = [];
 
-// Acronym mappings for stat blocks
+// Acronym mappings for stat blocks (only these are transformed)
 const acronyms = {
   "Abjuration": "Abj",
   "Alteration": "Alt",
@@ -59,36 +59,26 @@ function renderSpells(spells) {
     const card = document.createElement("div");
     card.className = "spell-card";
 
-    // Split and clean lines
+    // Clean description lines
     const lines = spell.description
       .split("\n")
       .map(line => line.trim())
       .filter(line => line !== "" && !/^details$/i.test(line)); // remove "Details"
 
-    let titleLine = spell.name;
-
-    // Replace (S M V) style markers in the title
-    titleLine = titleLine.replace(/\((.*?)\)/g, (_, inside) =>
-      "(" + inside.toLowerCase().replace(/\s+/g, "_") + ")"
-    );
-
     let rows = "";
     lines.forEach(line => {
-      const parts = line.split(/:(.+)/); // check if already has a colon
+      const parts = line.split(/:(.+)/); // try to split at first colon
       if (parts.length > 1) {
         const label = parts[0].trim();
         const value = applyAcronyms(parts[1].trim());
         rows += `<div><strong>${label}:</strong> ${value}</div>`;
       } else {
-        const colonParts = line.split(/\s+/);
-        const label = colonParts[0].replace(/:$/, "");
-        const value = applyAcronyms(line.replace(label, "").trim());
-        rows += `<div><strong>${label}:</strong> ${value}</div>`;
+        rows += `<div>${applyAcronyms(line)}</div>`;
       }
     });
 
     card.innerHTML = `
-      <h2>${titleLine}</h2>
+      <h2>${spell.name}</h2>
       ${rows}
     `;
     container.appendChild(card);
