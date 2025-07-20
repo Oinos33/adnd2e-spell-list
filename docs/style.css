@@ -1,93 +1,99 @@
 body {
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 0;
-    background-color: #f4f4f4;
-    color: #333;
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background: #f2f2f2;
 }
 
 header {
-    background: #333;
-    color: #fff;
-    padding: 15px;
-    text-align: center;
+  background: #333;
+  color: #fff;
+  padding: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
 }
 
-header h1 {
-    margin: 0;
+h1 {
+  margin: 0;
+  font-size: 1.5em;
 }
 
 header input {
-    margin-top: 10px;
-    padding: 5px;
-    width: 250px;
+  padding: 5px;
+  width: 200px;
 }
 
 header button {
-    margin-left: 10px;
-    padding: 5px 10px;
-    background: #666;
-    color: #fff;
-    border: none;
-    cursor: pointer;
+  padding: 5px 10px;
+  background: #555;
+  color: #fff;
+  border: none;
+  cursor: pointer;
 }
 
 header button:hover {
-    background: #555;
+  background: #777;
 }
 
-#filters {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    background: #fff;
-    padding: 10px;
-    margin-bottom: 10px;
+.filters {
+  padding: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  background: #fff;
+  border-bottom: 1px solid #ccc;
 }
 
-#filters h3 {
-    width: 100%;
-    text-align: center;
+.filter-group {
+  display: flex;
+  flex-direction: column;
 }
 
-#filters div {
-    margin: 10px;
+.filter-group h3 {
+  margin: 0 0 5px 0;
+  font-size: 1em;
+  color: #333;
 }
 
-#spellContainer {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    padding: 10px;
+#schoolFilters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  max-width: 800px;
+}
+
+main {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  padding: 10px;
 }
 
 .spell-card {
-    background: #fff;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    padding: 15px;
-    margin: 10px;
-    width: 300px;
-    box-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 10px;
+  margin: 5px;
+  width: 300px;
+  max-height: 400px;
+  overflow-y: auto;
 }
 
 .spell-card h2 {
-    margin-top: 0;
+  margin-top: 0;
 }
 
-.spell-stats {
-    margin-bottom: 10px;
-    line-height: 1.4;
+.spell-card strong {
+  display: inline-block;
+  min-width: 90px;
+  color: #444;
 }
 
-.spell-stats strong {
-    font-weight: bold;
-}
-
-.spell-description {
-    border-top: 1px solid #ccc;
-    padding-top: 10px;
-    font-size: 14px;
-    line-height: 1.4;
-    white-space: pre-wrap;
+.spell-card .description {
+  margin-top: 5px;
+  padding-top: 5px;
+  border-top: 1px solid #ddd;
 }
