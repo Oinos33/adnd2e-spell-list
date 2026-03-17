@@ -8,7 +8,7 @@ async function loadSpells() {
 
   try {
     count.textContent = "Loading spells...";
-    const response = await fetch("./AD&D2e_Master_Spell_List.json?v=11");
+    const response = await fetch("./AD&D2e_Master_Spell_List.json?v=12");
 
     if (!response.ok) {
       throw new Error(`Fetch failed: ${response.status}`);
@@ -199,6 +199,7 @@ function populateDropdown(selectId, values, placeholder) {
     .sort((a, b) => a.localeCompare(b));
 
   select.innerHTML = "";
+
   const defaultOption = document.createElement("option");
   defaultOption.value = "";
   defaultOption.textContent = placeholder;
@@ -281,6 +282,7 @@ function applyFilters() {
   const stillVisible = filteredSpells.find(spell => spell._internalId === selectedSpellId);
   if (stillVisible) {
     renderSpellDetail(stillVisible);
+    highlightActiveSpell();
   } else {
     selectSpell(filteredSpells[0]._internalId);
   }
@@ -305,10 +307,7 @@ function renderSpellList(spellArray) {
     const button = document.createElement("button");
     button.type = "button";
     button.className = "spell-list-item";
-
-    if (spell._internalId === selectedSpellId) {
-      button.classList.add("active");
-    }
+    button.dataset.spellId = spell._internalId;
 
     const schools = getSchools(spell).join(", ");
     const spheres = getSpheres(spell).join(", ");
@@ -328,6 +327,30 @@ function renderSpellList(spellArray) {
     button.addEventListener("click", () => selectSpell(spell._internalId));
     list.appendChild(button);
   });
+
+  highlightActiveSpell();
+}
+
+function highlightActiveSpell() {
+  const buttons = document.querySelectorAll(".spell-list-item");
+  buttons.forEach(button => {
+    if (button.dataset.spellId === selectedSpellId) {
+      button.classList.add("active");
+    } else {
+      button.classList.remove("active");
+    }
+  });
+}
+
+function scrollActiveSpellIntoView() {
+  const activeButton = document.querySelector(".spell-list-item.active");
+  if (!activeButton) return;
+
+  activeButton.scrollIntoView({
+    behavior: "smooth",
+    block: "nearest",
+    inline: "nearest"
+  });
 }
 
 function selectSpell(spellId) {
@@ -337,20 +360,13 @@ function selectSpell(spellId) {
     filteredSpells.find(item => item._internalId === spellId) ||
     spells.find(item => item._internalId === spellId);
 
-  renderSpellList(filteredSpells);
+  highlightActiveSpell();
 
   if (spell) {
     renderSpellDetail(spell);
 
     requestAnimationFrame(() => {
-      const activeButton = document.querySelector(".spell-list-item.active");
-      if (activeButton) {
-        activeButton.scrollIntoView({
-          behavior: "smooth",
-          block: "nearest",
-          inline: "nearest"
-        });
-      }
+      scrollActiveSpellIntoView();
     });
   } else {
     renderEmptyDetail("Spell not found.");
