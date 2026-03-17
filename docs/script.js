@@ -8,7 +8,7 @@ async function loadSpells() {
 
   try {
     count.textContent = "Loading spells...";
-    const response = await fetch("./AD&D2e_Master_Spell_List.json?v=7");
+    const response = await fetch("./AD&D2e_Master_Spell_List.json?v=8");
 
     if (!response.ok) {
       throw new Error(`Fetch failed: ${response.status}`);
@@ -24,6 +24,9 @@ async function loadSpells() {
       ...spell,
       _internalId: spell.spell_id || `spell-${index}`
     }));
+
+    populateDropdown("groupFilter", spells.flatMap(getGroups), "All Groups");
+    populateDropdown("deityFilter", spells.flatMap(getDeities), "All Deities");
 
     applyFilters();
   } catch (error) {
@@ -184,6 +187,27 @@ function compareByLevelDesc(a, b) {
 function getSelectedCheckboxValues(groupName) {
   return Array.from(document.querySelectorAll(`.tag-filter[data-group="${groupName}"]:checked`))
     .map(input => normalizeText(input.value).toLowerCase());
+}
+
+function populateDropdown(selectId, values, placeholder) {
+  const select = document.getElementById(selectId);
+  if (!select) return;
+
+  const currentValue = select.value;
+
+  const uniqueValues = [...new Set(values.map(normalizeText).filter(Boolean))]
+    .sort((a, b) => a.localeCompare(b));
+
+  select.innerHTML = `<option value="">${placeholder}</option>`;
+
+  uniqueValues.forEach(value => {
+    const option = document.createElement("option");
+    option.value = value;
+    option.textContent = value;
+    select.appendChild(option);
+  });
+
+  select.value = uniqueValues.includes(currentValue) ? currentValue : "";
 }
 
 function applyFilters() {
@@ -427,8 +451,8 @@ document.getElementById("wizard").addEventListener("change", applyFilters);
 document.getElementById("priest").addEventListener("change", applyFilters);
 document.getElementById("levelFilter").addEventListener("change", applyFilters);
 document.getElementById("sortFilter").addEventListener("change", applyFilters);
-document.getElementById("groupFilter").addEventListener("input", applyFilters);
-document.getElementById("deityFilter").addEventListener("input", applyFilters);
+document.getElementById("groupFilter").addEventListener("change", applyFilters);
+document.getElementById("deityFilter").addEventListener("change", applyFilters);
 
 document.querySelectorAll(".tag-filter").forEach(input => {
   input.addEventListener("change", applyFilters);
