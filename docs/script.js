@@ -35,7 +35,7 @@ Loaded ${spells.length} spell records successfully.
 
 First record name: ${spells[0]?.name || "(missing)"}
 First record class: ${spells[0]?.class || "(missing)"}
-First record level: ${spells[0]?.spell_level || "(missing)"}
+First record level: ${spells[0]?.spell_level ?? "(missing)"}
         </div>
       </div>
     `;
