@@ -8,7 +8,7 @@ async function loadSpells() {
 
   try {
     count.textContent = "Loading spells...";
-    const response = await fetch("./AD&D2e_Master_Spell_List.json?v=8");
+    const response = await fetch("./AD&D2e_Master_Spell_List.json?v=9");
 
     if (!response.ok) {
       throw new Error(`Fetch failed: ${response.status}`);
@@ -93,19 +93,19 @@ function getSpheres(spell) {
 }
 
 function getGroups(spell) {
-  return asArray(spell.group_targets).map(normalizeText).filter(Boolean);
+  return splitTags(spell.group_targets);
 }
 
 function getDeities(spell) {
-  return asArray(spell.deity_targets).map(normalizeText).filter(Boolean);
+  return splitTags(spell.deity_targets);
 }
 
 function getSettings(spell) {
-  return asArray(spell.setting_targets).map(normalizeText).filter(Boolean);
+  return splitTags(spell.setting_targets);
 }
 
 function getComponents(spell) {
-  return asArray(spell.components).map(normalizeText).filter(Boolean);
+  return splitTags(spell.components);
 }
 
 function getElementalTags(spell) {
@@ -198,7 +198,11 @@ function populateDropdown(selectId, values, placeholder) {
   const uniqueValues = [...new Set(values.map(normalizeText).filter(Boolean))]
     .sort((a, b) => a.localeCompare(b));
 
-  select.innerHTML = `<option value="">${placeholder}</option>`;
+  select.innerHTML = "";
+  const defaultOption = document.createElement("option");
+  defaultOption.value = "";
+  defaultOption.textContent = placeholder;
+  select.appendChild(defaultOption);
 
   uniqueValues.forEach(value => {
     const option = document.createElement("option");
@@ -239,8 +243,8 @@ function applyFilters() {
 
     if (levelFilter && spellLevel !== levelFilter) return false;
     if (searchTerm && !blob.includes(searchTerm)) return false;
-    if (groupFilter && !groups.some(item => item.includes(groupFilter))) return false;
-    if (deityFilter && !deities.some(item => item.includes(deityFilter))) return false;
+    if (groupFilter && !groups.some(item => item === groupFilter)) return false;
+    if (deityFilter && !deities.some(item => item === deityFilter)) return false;
 
     if (selectedSchools.length && !selectedSchools.some(item => schools.includes(item))) return false;
     if (selectedSpheres.length && !selectedSpheres.some(item => spheres.includes(item))) return false;
