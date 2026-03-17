@@ -8,7 +8,7 @@ async function loadSpells() {
 
   try {
     count.textContent = "Loading spells...";
-    const response = await fetch("./AD&D2e_Master_Spell_List.json?v=10");
+    const response = await fetch("./AD&D2e_Master_Spell_List.json?v=11");
 
     if (!response.ok) {
       throw new Error(`Fetch failed: ${response.status}`);
@@ -308,13 +308,6 @@ function renderSpellList(spellArray) {
 
     if (spell._internalId === selectedSpellId) {
       button.classList.add("active");
-
-      requestAnimationFrame(() => {
-        button.scrollIntoView({
-          block: "nearest",
-          inline: "nearest"
-        });
-      });
     }
 
     const schools = getSchools(spell).join(", ");
@@ -339,6 +332,7 @@ function renderSpellList(spellArray) {
 
 function selectSpell(spellId) {
   selectedSpellId = spellId;
+
   const spell =
     filteredSpells.find(item => item._internalId === spellId) ||
     spells.find(item => item._internalId === spellId);
@@ -347,6 +341,17 @@ function selectSpell(spellId) {
 
   if (spell) {
     renderSpellDetail(spell);
+
+    requestAnimationFrame(() => {
+      const activeButton = document.querySelector(".spell-list-item.active");
+      if (activeButton) {
+        activeButton.scrollIntoView({
+          behavior: "smooth",
+          block: "nearest",
+          inline: "nearest"
+        });
+      }
+    });
   } else {
     renderEmptyDetail("Spell not found.");
   }
