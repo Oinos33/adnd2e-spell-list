@@ -27,19 +27,10 @@ async function loadSpells() {
       _internalId: spell.spell_id || `spell-${index}`
     }));
 
-    filteredSpells = [...spells].sort(compareByNameAsc);
+    count.textContent = "Stage 4: applying filters...";
+applyFilters();
 
-    count.textContent = "Stage 4: rendering list...";
-    renderSpellList(filteredSpells);
-
-    count.textContent = "Stage 5: selecting first spell...";
-    if (filteredSpells.length) {
-      selectSpell(filteredSpells[0]._internalId);
-    } else {
-      renderEmptyDetail("No spells found.");
-    }
-
-    count.textContent = `Loaded ${filteredSpells.length} spells`;
+count.textContent = `Loaded ${filteredSpells.length} spells`;
   } catch (error) {
     console.error("LOAD ERROR:", error);
     renderEmptyDetail(`Failed to load spell data. ${error.message}`);
