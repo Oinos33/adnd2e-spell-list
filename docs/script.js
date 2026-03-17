@@ -7,35 +7,30 @@ async function loadSpells() {
   const list = document.getElementById("spellList");
 
   try {
-    count.textContent = "Stage 1: fetching JSON...";
-    const response = await fetch("./AD&D2e_Master_Spell_List.json?v=6");
+    count.textContent = "Loading spells...";
+    const response = await fetch("./AD&D2e_Master_Spell_List.json?v=7");
 
     if (!response.ok) {
       throw new Error(`Fetch failed: ${response.status}`);
     }
 
-    count.textContent = "Stage 2: parsing JSON...";
     const rawData = await response.json();
 
     if (!Array.isArray(rawData)) {
       throw new Error("JSON root is not an array.");
     }
 
-    count.textContent = "Stage 3: normalizing records...";
     spells = rawData.map((spell, index) => ({
       ...spell,
       _internalId: spell.spell_id || `spell-${index}`
     }));
 
-    count.textContent = "Stage 4: applying filters...";
-applyFilters();
-
-count.textContent = `Loaded ${filteredSpells.length} spells`;
+    applyFilters();
   } catch (error) {
     console.error("LOAD ERROR:", error);
     renderEmptyDetail(`Failed to load spell data. ${error.message}`);
-    if (list) list.innerHTML = `<div class="empty-list">Failed: ${error.message}</div>`;
-    if (count) count.textContent = `Failed at: ${error.message}`;
+    if (list) list.innerHTML = `<div class="empty-list">Failed to load spell data.</div>`;
+    if (count) count.textContent = "Load failed";
   }
 }
 
@@ -81,12 +76,33 @@ function getSpellLevel(spell) {
   return String(raw).trim();
 }
 
+function getSpellLevelLabel(spell) {
+  const level = getSpellLevel(spell);
+  return level === "0" ? "Cantrip" : level;
+}
+
 function getSchools(spell) {
   return splitTags(spell.school);
 }
 
 function getSpheres(spell) {
   return splitTags(spell.sphere);
+}
+
+function getGroups(spell) {
+  return asArray(spell.group_targets).map(normalizeText).filter(Boolean);
+}
+
+function getDeities(spell) {
+  return asArray(spell.deity_targets).map(normalizeText).filter(Boolean);
+}
+
+function getSettings(spell) {
+  return asArray(spell.setting_targets).map(normalizeText).filter(Boolean);
+}
+
+function getComponents(spell) {
+  return asArray(spell.components).map(normalizeText).filter(Boolean);
 }
 
 function getElementalTags(spell) {
@@ -112,11 +128,6 @@ function getElementalTags(spell) {
 }
 
 function getSearchBlob(spell) {
-  const components = Array.isArray(spell.components) ? spell.components : [spell.components].filter(Boolean);
-  const groupTargets = Array.isArray(spell.group_targets) ? spell.group_targets : [spell.group_targets].filter(Boolean);
-  const settingTargets = Array.isArray(spell.setting_targets) ? spell.setting_targets : [spell.setting_targets].filter(Boolean);
-  const deityTargets = Array.isArray(spell.deity_targets) ? spell.deity_targets : [spell.deity_targets].filter(Boolean);
-
   const values = [
     spell.name,
     spell.spell_id,
@@ -130,13 +141,13 @@ function getSearchBlob(spell) {
     spell.notes,
     spell.duration,
     spell.saving_throw,
-    ...components,
+    ...getComponents(spell),
     ...getSchools(spell),
     ...getSpheres(spell),
     ...getElementalTags(spell),
-    ...groupTargets,
-    ...settingTargets,
-    ...deityTargets
+    ...getGroups(spell),
+    ...getSettings(spell),
+    ...getDeities(spell)
   ];
 
   return values.map(normalizeText).join(" ").toLowerCase();
@@ -181,6 +192,8 @@ function applyFilters() {
   const priestChecked = document.getElementById("priest").checked;
   const levelFilter = normalizeText(document.getElementById("levelFilter").value);
   const sortFilter = document.getElementById("sortFilter").value;
+  const groupFilter = normalizeText(document.getElementById("groupFilter").value).toLowerCase();
+  const deityFilter = normalizeText(document.getElementById("deityFilter").value).toLowerCase();
 
   const selectedSchools = getSelectedCheckboxValues("school");
   const selectedSpheres = getSelectedCheckboxValues("sphere");
@@ -192,13 +205,19 @@ function applyFilters() {
     const schools = getSchools(spell).map(v => v.toLowerCase());
     const spheres = getSpheres(spell).map(v => v.toLowerCase());
     const elementalTags = getElementalTags(spell).map(v => v.toLowerCase());
+    const groups = getGroups(spell).map(v => v.toLowerCase());
+    const deities = getDeities(spell).map(v => v.toLowerCase());
     const blob = getSearchBlob(spell);
 
+    if (!wizardChecked && !priestChecked) return false;
     if (!wizardChecked && spellClass === "wizard") return false;
     if (!priestChecked && spellClass === "priest") return false;
-    if (!wizardChecked && !priestChecked) return false;
+
     if (levelFilter && spellLevel !== levelFilter) return false;
     if (searchTerm && !blob.includes(searchTerm)) return false;
+    if (groupFilter && !groups.some(item => item.includes(groupFilter))) return false;
+    if (deityFilter && !deities.some(item => item.includes(deityFilter))) return false;
+
     if (selectedSchools.length && !selectedSchools.some(item => schools.includes(item))) return false;
     if (selectedSpheres.length && !selectedSpheres.some(item => spheres.includes(item))) return false;
     if (selectedElementals.length && !selectedElementals.some(item => elementalTags.includes(item))) return false;
@@ -210,14 +229,15 @@ function applyFilters() {
     case "name-desc":
       filteredSpells.sort(compareByNameDesc);
       break;
-    case "level-asc":
-      filteredSpells.sort(compareByLevelAsc);
-      break;
     case "level-desc":
       filteredSpells.sort(compareByLevelDesc);
       break;
-    default:
+    case "name-asc":
       filteredSpells.sort(compareByNameAsc);
+      break;
+    case "level-asc":
+    default:
+      filteredSpells.sort(compareByLevelAsc);
       break;
   }
 
@@ -257,17 +277,20 @@ function renderSpellList(spellArray) {
     const button = document.createElement("button");
     button.type = "button";
     button.className = "spell-list-item";
-    if (spell._internalId === selectedSpellId) button.classList.add("active");
+
+    if (spell._internalId === selectedSpellId) {
+      button.classList.add("active");
+    }
 
     const schools = getSchools(spell).join(", ");
     const spheres = getSpheres(spell).join(", ");
-    const level = getSpellLevel(spell);
+    const levelLabel = getSpellLevelLabel(spell);
     const classLabel = titleCase(spell.class || "");
 
     button.innerHTML = `
       <div class="spell-list-name">${escapeHtml(spell.name)}</div>
       <div class="spell-list-meta">
-        ${escapeHtml(classLabel)}${level !== "" ? ` • Lvl ${escapeHtml(level)}` : ""}
+        ${escapeHtml(classLabel)}${levelLabel !== "" ? ` • ${escapeHtml(levelLabel === "Cantrip" ? "Cantrip" : `Lvl ${levelLabel}`)}` : ""}
       </div>
       <div class="spell-list-submeta">
         ${escapeHtml(schools || spheres || spell.cantrip_category || "")}
@@ -281,7 +304,9 @@ function renderSpellList(spellArray) {
 
 function selectSpell(spellId) {
   selectedSpellId = spellId;
-  const spell = filteredSpells.find(item => item._internalId === spellId) || spells.find(item => item._internalId === spellId);
+  const spell =
+    filteredSpells.find(item => item._internalId === spellId) ||
+    spells.find(item => item._internalId === spellId);
 
   renderSpellList(filteredSpells);
 
@@ -328,12 +353,12 @@ function renderSpellDetail(spell) {
   const schools = getSchools(spell);
   const spheres = getSpheres(spell);
   const elementalTags = getElementalTags(spell);
-
-  const components = asArray(spell.components).map(normalizeText).filter(Boolean);
-  const groupTargets = asArray(spell.group_targets).map(normalizeText).filter(Boolean);
-  const settingTargets = asArray(spell.setting_targets).map(normalizeText).filter(Boolean);
-  const deityTargets = asArray(spell.deity_targets).map(normalizeText).filter(Boolean);
+  const components = getComponents(spell);
+  const groupTargets = getGroups(spell);
+  const settingTargets = getSettings(spell);
+  const deityTargets = getDeities(spell);
   const fandomUrl = normalizeText(spell.fandom_url);
+  const levelLabel = getSpellLevelLabel(spell);
 
   detail.className = "spell-detail";
   detail.innerHTML = `
@@ -341,7 +366,7 @@ function renderSpellDetail(spell) {
       <h2>${escapeHtml(spell.name)}</h2>
       <div class="detail-subtitle">
         ${escapeHtml(titleCase(spell.class || ""))}
-        ${getSpellLevel(spell) !== "" ? ` • Level ${escapeHtml(getSpellLevel(spell))}` : ""}
+        ${levelLabel !== "" ? ` • ${escapeHtml(levelLabel === "Cantrip" ? "Cantrip" : `Level ${levelLabel}`)}` : ""}
         ${spell.cantrip_category ? ` • ${escapeHtml(spell.cantrip_category)}` : ""}
       </div>
     </div>
@@ -387,6 +412,8 @@ function resetFilters() {
   document.getElementById("priest").checked = true;
   document.getElementById("levelFilter").value = "";
   document.getElementById("sortFilter").value = "level-asc";
+  document.getElementById("groupFilter").value = "";
+  document.getElementById("deityFilter").value = "";
 
   document.querySelectorAll(".tag-filter").forEach(input => {
     input.checked = false;
@@ -400,9 +427,13 @@ document.getElementById("wizard").addEventListener("change", applyFilters);
 document.getElementById("priest").addEventListener("change", applyFilters);
 document.getElementById("levelFilter").addEventListener("change", applyFilters);
 document.getElementById("sortFilter").addEventListener("change", applyFilters);
+document.getElementById("groupFilter").addEventListener("input", applyFilters);
+document.getElementById("deityFilter").addEventListener("input", applyFilters);
+
 document.querySelectorAll(".tag-filter").forEach(input => {
   input.addEventListener("change", applyFilters);
 });
+
 document.getElementById("resetFilters").addEventListener("click", resetFilters);
 
 loadSpells();
