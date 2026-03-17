@@ -8,7 +8,7 @@ async function loadSpells() {
 
   try {
     count.textContent = "Loading spells...";
-    const response = await fetch("./AD&D2e_Master_Spell_List.json?v=9");
+    const response = await fetch("./AD&D2e_Master_Spell_List.json?v=10");
 
     if (!response.ok) {
       throw new Error(`Fetch failed: ${response.status}`);
@@ -308,6 +308,13 @@ function renderSpellList(spellArray) {
 
     if (spell._internalId === selectedSpellId) {
       button.classList.add("active");
+
+      requestAnimationFrame(() => {
+        button.scrollIntoView({
+          block: "nearest",
+          inline: "nearest"
+        });
+      });
     }
 
     const schools = getSchools(spell).join(", ");
