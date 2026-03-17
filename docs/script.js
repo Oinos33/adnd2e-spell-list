@@ -7,19 +7,21 @@ async function loadSpells() {
   const list = document.getElementById("spellList");
 
   try {
-    count.textContent = "Fetching JSON...";
-    const response = await fetch("./AD&D2e_Master_Spell_List.json?v=5");
+    count.textContent = "Stage 1: fetching JSON...";
+    const response = await fetch("./AD&D2e_Master_Spell_List.json?v=6");
 
     if (!response.ok) {
       throw new Error(`Fetch failed: ${response.status}`);
     }
 
+    count.textContent = "Stage 2: parsing JSON...";
     const rawData = await response.json();
 
     if (!Array.isArray(rawData)) {
       throw new Error("JSON root is not an array.");
     }
 
+    count.textContent = "Stage 3: normalizing records...";
     spells = rawData.map((spell, index) => ({
       ...spell,
       _internalId: spell.spell_id || `spell-${index}`
@@ -27,20 +29,22 @@ async function loadSpells() {
 
     filteredSpells = [...spells].sort(compareByNameAsc);
 
+    count.textContent = "Stage 4: rendering list...";
     renderSpellList(filteredSpells);
 
+    count.textContent = "Stage 5: selecting first spell...";
     if (filteredSpells.length) {
       selectSpell(filteredSpells[0]._internalId);
     } else {
       renderEmptyDetail("No spells found.");
     }
 
-    updateResultsCount(filteredSpells.length);
+    count.textContent = `Loaded ${filteredSpells.length} spells`;
   } catch (error) {
     console.error("LOAD ERROR:", error);
     renderEmptyDetail(`Failed to load spell data. ${error.message}`);
-    if (list) list.innerHTML = `<div class="empty-list">Failed to load spell data.</div>`;
-    if (count) count.textContent = "Load failed";
+    if (list) list.innerHTML = `<div class="empty-list">Failed: ${error.message}</div>`;
+    if (count) count.textContent = `Failed at: ${error.message}`;
   }
 }
 
