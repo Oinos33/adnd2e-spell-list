@@ -8,7 +8,7 @@ async function loadSpells() {
 
   try {
     count.textContent = "Loading spells...";
-    const response = await fetch("./AD&D2e_Master_Spell_List.json?v=12");
+    const response = await fetch("./AD&D2e_Master_Spell_List.json?v=13");
 
     if (!response.ok) {
       throw new Error(`Fetch failed: ${response.status}`);
@@ -194,7 +194,6 @@ function populateDropdown(selectId, values, placeholder) {
   if (!select) return;
 
   const currentValue = select.value;
-
   const uniqueValues = [...new Set(values.map(normalizeText).filter(Boolean))]
     .sort((a, b) => a.localeCompare(b));
 
@@ -283,6 +282,10 @@ function applyFilters() {
   if (stillVisible) {
     renderSpellDetail(stillVisible);
     highlightActiveSpell();
+
+    requestAnimationFrame(() => {
+      scrollActiveSpellIntoView();
+    });
   } else {
     selectSpell(filteredSpells[0]._internalId);
   }
