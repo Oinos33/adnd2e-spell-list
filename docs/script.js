@@ -8,7 +8,7 @@ async function loadSpells() {
 
   try {
     count.textContent = "Fetching JSON...";
-    const response = await fetch("./AD&D2e_Master_Spell_List.json?v=4");
+    const response = await fetch("./AD&D2e_Master_Spell_List.json?v=5");
 
     if (!response.ok) {
       throw new Error(`Fetch failed: ${response.status}`);
