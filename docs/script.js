@@ -395,7 +395,7 @@ function resetFilters() {
   document.getElementById("wizard").checked = true;
   document.getElementById("priest").checked = true;
   document.getElementById("levelFilter").value = "";
-  document.getElementById("sortFilter").value = "name-asc";
+  document.getElementById("sortFilter").value = "level-asc";
 
   document.querySelectorAll(".tag-filter").forEach(input => {
     input.checked = false;
