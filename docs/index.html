@@ -15,50 +15,51 @@
 
     <div class="toolbar">
       <input type="text" id="searchInput" placeholder="Search spells, schools, spheres, text...">
+
+      <div class="class-inline-toggle">
+        <label><input type="checkbox" id="wizard" checked> Wizard</label>
+        <label><input type="checkbox" id="priest" checked> Priest</label>
+      </div>
+
       <select id="sortFilter" title="Sort results">
         <option value="level-asc">Sort: Level Low–High</option>
         <option value="name-asc">Sort: Name A–Z</option>
         <option value="name-desc">Sort: Name Z–A</option>
         <option value="level-desc">Sort: Level High–Low</option>
       </select>
+
       <button id="resetFilters" type="button">Reset Filters</button>
     </div>
   </header>
 
   <section id="filters">
     <div class="filter-group">
-      <div class="filter-title">Class</div>
-      <label><input type="checkbox" id="wizard" checked> Wizard</label>
-      <label><input type="checkbox" id="priest" checked> Priest</label>
+      <div class="filter-title">Level</div>
+      <select id="levelFilter" multiple size="10" title="Hold Ctrl (or Cmd on Mac) to select multiple levels">
+        <option value="0">0 / Cantrips</option>
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="3">3</option>
+        <option value="4">4</option>
+        <option value="5">5</option>
+        <option value="6">6</option>
+        <option value="7">7</option>
+        <option value="8">8</option>
+        <option value="9">9</option>
+      </select>
     </div>
 
-<div class="filter-group">
-  <div class="filter-title">Level</div>
- <select id="levelFilter" multiple size="10" title="Hold Ctrl (or Cmd on Mac) to select multiple levels">
-    <option value="0">0 / Cantrips</option>
-    <option value="1">1</option>
-    <option value="2">2</option>
-    <option value="3">3</option>
-    <option value="4">4</option>
-    <option value="5">5</option>
-    <option value="6">6</option>
-    <option value="7">7</option>
-    <option value="8">8</option>
-    <option value="9">9</option>
-  </select>
-</div>
+    <div class="filter-group">
+      <div class="filter-title">Group</div>
+      <select id="groupFilter" multiple size="6" title="Hold Ctrl (or Cmd on Mac) to select multiple groups">
+      </select>
+    </div>
 
-<div class="filter-group">
-  <div class="filter-title">Group</div>
-  <select id="groupFilter" multiple size="6" title="Hold Ctrl (or Cmd on Mac) to select multiple groups">
-  </select>
-</div>
-
-<div class="filter-group">
-  <div class="filter-title">Deity</div>
-  <select id="deityFilter" multiple size="6" title="Hold Ctrl (or Cmd on Mac) to select multiple deities">
-  </select>
-</div>
+    <div class="filter-group">
+      <div class="filter-title">Deity</div>
+      <select id="deityFilter" multiple size="6" title="Hold Ctrl (or Cmd on Mac) to select multiple deities">
+      </select>
+    </div>
 
     <details class="filter-group">
       <summary>Wizard Schools</summary>
