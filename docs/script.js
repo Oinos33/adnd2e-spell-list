@@ -189,39 +189,61 @@ function getSelectedCheckboxValues(groupName) {
     .map(input => normalizeText(input.value).toLowerCase());
 }
 
+function getSelectedSelectValues(selectId) {
+  const select = document.getElementById(selectId);
+  if (!select) return [];
+
+  return Array.from(select.selectedOptions)
+    .map(option => normalizeText(option.value).toLowerCase())
+    .filter(Boolean);
+}
+
 function populateDropdown(selectId, values, placeholder) {
   const select = document.getElementById(selectId);
   if (!select) return;
 
-  const currentValue = select.value;
+  const currentValues = Array.from(select.selectedOptions || [])
+    .map(option => normalizeText(option.value));
+
   const uniqueValues = [...new Set(values.map(normalizeText).filter(Boolean))]
     .sort((a, b) => a.localeCompare(b));
 
   select.innerHTML = "";
 
-  const defaultOption = document.createElement("option");
-  defaultOption.value = "";
-  defaultOption.textContent = placeholder;
-  select.appendChild(defaultOption);
+  if (selectId === "deityFilter") {
+    const noDeityOption = document.createElement("option");
+    noDeityOption.value = "__NO_DEITY__";
+    noDeityOption.textContent = "No Deity / Non-deity-specific";
+    select.appendChild(noDeityOption);
+  }
 
   uniqueValues.forEach(value => {
     const option = document.createElement("option");
     option.value = value;
     option.textContent = value;
+    if (currentValues.includes(value)) {
+      option.selected = true;
+    }
     select.appendChild(option);
   });
 
-  select.value = uniqueValues.includes(currentValue) ? currentValue : "";
+  if (selectId === "deityFilter" && currentValues.includes("__NO_DEITY__")) {
+    const noDeityOption = Array.from(select.options).find(opt => opt.value === "__NO_DEITY__");
+    if (noDeityOption) noDeityOption.selected = true;
+  }
 }
 
 function applyFilters() {
   const searchTerm = normalizeText(document.getElementById("searchInput").value).toLowerCase();
   const wizardChecked = document.getElementById("wizard").checked;
   const priestChecked = document.getElementById("priest").checked;
-  const levelFilter = normalizeText(document.getElementById("levelFilter").value);
+  const selectedLevels = getSelectedSelectValues("levelFilter");
   const sortFilter = document.getElementById("sortFilter").value;
-  const groupFilter = normalizeText(document.getElementById("groupFilter").value).toLowerCase();
-  const deityFilter = normalizeText(document.getElementById("deityFilter").value).toLowerCase();
+  const selectedGroups = getSelectedSelectValues("groupFilter");
+  const selectedDeities = getSelectedSelectValues("deityFilter");
+
+  const noDeitySelected = selectedDeities.includes("__no_deity__");
+  const explicitDeities = selectedDeities.filter(value => value !== "__no_deity__");
 
   const selectedSchools = getSelectedCheckboxValues("school");
   const selectedSpheres = getSelectedCheckboxValues("sphere");
@@ -241,10 +263,20 @@ function applyFilters() {
     if (!wizardChecked && spellClass === "wizard") return false;
     if (!priestChecked && spellClass === "priest") return false;
 
-    if (levelFilter && spellLevel !== levelFilter) return false;
+    if (selectedLevels.length && !selectedLevels.includes(spellLevel.toLowerCase())) return false;
     if (searchTerm && !blob.includes(searchTerm)) return false;
-    if (groupFilter && !groups.some(item => item === groupFilter)) return false;
-    if (deityFilter && !deities.some(item => item === deityFilter)) return false;
+
+    if (selectedGroups.length && !groups.some(item => selectedGroups.includes(item))) return false;
+
+    if (selectedDeities.length) {
+      const matchesNamedDeity =
+        explicitDeities.length && deities.some(item => explicitDeities.includes(item));
+
+      const matchesNoDeity =
+        noDeitySelected && deities.length === 0 && spell.deity_specific !== true;
+
+      if (!matchesNamedDeity && !matchesNoDeity) return false;
+    }
 
     if (selectedSchools.length && !selectedSchools.some(item => schools.includes(item))) return false;
     if (selectedSpheres.length && !selectedSpheres.some(item => spheres.includes(item))) return false;
@@ -469,10 +501,20 @@ function resetFilters() {
   document.getElementById("searchInput").value = "";
   document.getElementById("wizard").checked = true;
   document.getElementById("priest").checked = true;
-  document.getElementById("levelFilter").value = "";
+
+  Array.from(document.getElementById("levelFilter").options).forEach(option => {
+    option.selected = false;
+  });
+
   document.getElementById("sortFilter").value = "level-asc";
-  document.getElementById("groupFilter").value = "";
-  document.getElementById("deityFilter").value = "";
+
+  Array.from(document.getElementById("groupFilter").options).forEach(option => {
+    option.selected = false;
+  });
+
+  Array.from(document.getElementById("deityFilter").options).forEach(option => {
+    option.selected = false;
+  });
 
   document.querySelectorAll(".tag-filter").forEach(input => {
     input.checked = false;
