@@ -441,6 +441,7 @@ function renderTagList(label, values) {
 
 function renderSpellDetail(spell) {
   const detail = document.getElementById("spellDetail");
+
   const schools = getSchools(spell);
   const spheres = getSpheres(spell);
   const elementalTags = getElementalTags(spell);
@@ -451,17 +452,21 @@ function renderSpellDetail(spell) {
   const fandomUrl = normalizeText(spell.fandom_url);
   const levelLabel = getSpellLevelLabel(spell);
 
-  detail.className = "spell-detail";
-  detail.innerHTML = `
-    <div class="detail-header">
-      <h2>${escapeHtml(spell.name)}</h2>
-      <div class="detail-subtitle">
-        ${escapeHtml(titleCase(spell.class || ""))}
-        ${levelLabel !== "" ? ` • ${escapeHtml(levelLabel === "Cantrip" ? "Cantrip" : `Level ${levelLabel}`)}` : ""}
-        ${spell.cantrip_category ? ` • ${escapeHtml(spell.cantrip_category)}` : ""}
-      </div>
-    </div>
+  const classPart = titleCase(spell.class || "");
+  const levelPart =
+    levelLabel !== ""
+      ? (levelLabel === "Cantrip" ? "Cantrip" : `Level ${levelLabel}`)
+      : "";
 
+  const subtitleParts = [
+    classPart,
+    levelPart,
+    spell.cantrip_category ? normalizeText(spell.cantrip_category) : "",
+    schools.length ? `School: ${schools.join(", ")}` : "",
+    spheres.length ? `Sphere: ${spheres.join(", ")}` : ""
+  ].filter(Boolean);
+
+  const coreStatsHtml = `
     <div class="detail-block">
       <div class="section-title">Core Stats</div>
       <div class="meta-grid">
@@ -470,23 +475,53 @@ function renderSpellDetail(spell) {
         ${renderField("Casting Time", spell.casting_time)}
         ${renderField("Duration", spell.duration)}
         ${renderField("Saving Throw", spell.saving_throw)}
-        ${renderField("Source", spell.source)}
-        ${renderField("Notes", spell.notes)}
+        ${renderField("Components", components.join(", "))}
       </div>
     </div>
+  `;
 
-    ${renderTagList("School", schools)}
-    ${renderTagList("Sphere", spheres)}
-    ${renderTagList("Elemental", elementalTags)}
-    ${renderTagList("Components", components)}
-    ${renderTagList("Deity Targets", deityTargets)}
-    ${renderTagList("Group Targets", groupTargets)}
-    ${renderTagList("Setting Targets", settingTargets)}
-
+  const descriptionHtml = `
     <div class="detail-block">
       <div class="section-title">Description</div>
       <div class="description-text">${escapeHtml(spell.description || "No description available.")}</div>
     </div>
+  `;
+
+  const referenceRows = [
+    renderField("Source", spell.source),
+    renderField("Notes", spell.notes)
+  ].filter(Boolean).join("");
+
+  const referencesHtml = referenceRows
+    ? `
+      <div class="detail-block">
+        <div class="section-title">Reference</div>
+        <div class="meta-grid">
+          ${referenceRows}
+        </div>
+      </div>
+    `
+    : "";
+
+  detail.className = "spell-detail";
+  detail.innerHTML = `
+    <div class="detail-header">
+      <h2>${escapeHtml(spell.name)}</h2>
+      <div class="detail-subtitle">
+        ${escapeHtml(subtitleParts.join(" • "))}
+      </div>
+    </div>
+
+    ${coreStatsHtml}
+
+    ${descriptionHtml}
+
+    ${referencesHtml}
+
+    ${renderTagList("Elemental", elementalTags)}
+    ${renderTagList("Deity Targets", deityTargets)}
+    ${renderTagList("Group Targets", groupTargets)}
+    ${renderTagList("Setting Targets", settingTargets)}
 
     ${fandomUrl ? `
       <div class="detail-block">
