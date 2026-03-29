@@ -32,36 +32,33 @@
       <label><input type="checkbox" id="priest" checked> Priest</label>
     </div>
 
-    <div class="filter-group">
-      <div class="filter-title">Level</div>
-      <select id="levelFilter">
-        <option value="">All Levels</option>
-        <option value="0">0 / Cantrips</option>
-        <option value="1">1</option>
-        <option value="2">2</option>
-        <option value="3">3</option>
-        <option value="4">4</option>
-        <option value="5">5</option>
-        <option value="6">6</option>
-        <option value="7">7</option>
-        <option value="8">8</option>
-        <option value="9">9</option>
-      </select>
-    </div>
+<div class="filter-group">
+  <div class="filter-title">Level</div>
+ <select id="levelFilter" multiple size="10" title="Hold Ctrl (or Cmd on Mac) to select multiple levels">
+    <option value="0">0 / Cantrips</option>
+    <option value="1">1</option>
+    <option value="2">2</option>
+    <option value="3">3</option>
+    <option value="4">4</option>
+    <option value="5">5</option>
+    <option value="6">6</option>
+    <option value="7">7</option>
+    <option value="8">8</option>
+    <option value="9">9</option>
+  </select>
+</div>
 
-    <div class="filter-group">
-      <div class="filter-title">Group</div>
-      <select id="groupFilter">
-        <option value="">All Groups</option>
-      </select>
-    </div>
+<div class="filter-group">
+  <div class="filter-title">Group</div>
+  <select id="groupFilter" multiple size="6" title="Hold Ctrl (or Cmd on Mac) to select multiple groups">
+  </select>
+</div>
 
-    <div class="filter-group">
-      <div class="filter-title">Deity</div>
-      <select id="deityFilter">
-        <option value="">All Deities</option>
-      </select>
-    </div>
+<div class="filter-group">
+  <div class="filter-title">Deity</div>
+  <select id="deityFilter" multiple size="6" title="Hold Ctrl (or Cmd on Mac) to select multiple deities">
+  </select>
+</div>
 
     <details class="filter-group">
       <summary>Wizard Schools</summary>
