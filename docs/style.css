@@ -77,6 +77,20 @@ body {
   font-family: inherit;
 }
 
+#levelFilter[multiple],
+#groupFilter[multiple],
+#deityFilter[multiple] {
+  min-height: 140px;
+  width: 100%;
+  padding: 6px;
+}
+
+#levelFilter[multiple] option,
+#groupFilter[multiple] option,
+#deityFilter[multiple] option {
+  padding: 4px 6px;
+}
+
 .toolbar input {
   min-width: 280px;
 }
