@@ -65,10 +65,15 @@ body {
   align-content: center;
 }
 
+/* Class toggle in top toolbar */
 .class-inline-toggle {
   display: inline-flex;
   align-items: center;
-  gap: 14px;
+  justify-content: flex-start;
+  gap: 12px;
+  width: auto;
+  min-width: 0;
+  max-width: none;
   padding: 6px 10px;
   border: 1px solid var(--border-dark);
   border-radius: 6px;
@@ -81,14 +86,32 @@ body {
 .class-inline-toggle label {
   display: inline-flex;
   align-items: center;
+  justify-content: flex-start;
   gap: 6px;
   margin: 0;
+  padding: 0;
+  width: auto;
+  min-width: 0;
+  max-width: none;
   font-size: 0.95rem;
   color: var(--text);
   white-space: nowrap;
   flex: 0 0 auto;
 }
 
+.class-inline-toggle input[type="checkbox"] {
+  width: auto;
+  min-width: 0;
+  max-width: none;
+  height: auto;
+  margin: 0;
+  padding: 0;
+  flex: 0 0 auto;
+  box-shadow: none;
+  background: transparent;
+}
+
+/* Only style the actual search box, not all toolbar inputs */
 #searchInput,
 .toolbar select,
 .toolbar button,
@@ -102,6 +125,10 @@ body {
   color: var(--text);
   font-size: 0.95rem;
   font-family: inherit;
+}
+
+#searchInput {
+  min-width: 220px;
 }
 
 #levelFilter[multiple],
@@ -118,10 +145,6 @@ body {
   padding: 4px 6px;
 }
 
-#searchInput {
-  min-width: 220px;
-}
-
 .toolbar button {
   background: linear-gradient(to bottom, #8a6230, #6c4a22);
   color: #fff7ea;
@@ -133,7 +156,7 @@ body {
   filter: brightness(1.05);
 }
 
-.toolbar input:focus,
+#searchInput:focus,
 .toolbar select:focus,
 .toolbar button:focus,
 #levelFilter:focus,
@@ -438,12 +461,13 @@ body {
     justify-content: flex-start;
   }
 
-  .toolbar input {
+  #searchInput {
     min-width: 0;
     width: 100%;
   }
 
   .class-inline-toggle {
-    width: fit-content;
+    width: auto;
+    max-width: 100%;
   }
 }
