@@ -126,6 +126,7 @@ body {
   padding: 14px 18px;
   background: var(--panel-2);
   border-bottom: 1px solid var(--border);
+  align-items: flex-start;
 }
 
 .filter-group {
