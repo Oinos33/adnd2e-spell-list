@@ -233,6 +233,16 @@ function populateDropdown(selectId, values, placeholder) {
   }
 }
 
+function collapseDetailsForGroup(groupName) {
+  const input = document.querySelector(`.tag-filter[data-group="${groupName}"]`);
+  if (!input) return;
+
+  const details = input.closest("details");
+  if (details) {
+    details.open = false;
+  }
+}
+
 function applyFilters() {
   const searchTerm = normalizeText(document.getElementById("searchInput").value).toLowerCase();
   const wizardChecked = document.getElementById("wizard").checked;
@@ -555,6 +565,10 @@ function resetFilters() {
     input.checked = false;
   });
 
+  document.querySelectorAll("details.filter-group").forEach(details => {
+    details.open = false;
+  });
+
   applyFilters();
 }
 
@@ -567,7 +581,14 @@ document.getElementById("groupFilter").addEventListener("change", applyFilters);
 document.getElementById("deityFilter").addEventListener("change", applyFilters);
 
 document.querySelectorAll(".tag-filter").forEach(input => {
-  input.addEventListener("change", applyFilters);
+  input.addEventListener("change", event => {
+    applyFilters();
+
+    const groupName = event.target.dataset.group;
+    if (groupName === "school" || groupName === "sphere" || groupName === "elemental") {
+      collapseDetailsForGroup(groupName);
+    }
+  });
 });
 
 document.getElementById("resetFilters").addEventListener("click", resetFilters);
