@@ -89,7 +89,7 @@ body {
   flex: 0 0 auto;
 }
 
-.toolbar input,
+#searchInput,
 .toolbar select,
 .toolbar button,
 #levelFilter,
@@ -118,7 +118,7 @@ body {
   padding: 4px 6px;
 }
 
-.toolbar input {
+#searchInput {
   min-width: 220px;
 }
 
