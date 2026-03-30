@@ -7,128 +7,130 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <header class="topbar">
-    <div class="title-wrap">
-      <h1>AD&amp;D 2e Spell Reference</h1>
-      <div class="subtitle">External JSON deployment viewer</div>
-    </div>
-
-    <div class="toolbar">
-      <input type="text" id="searchInput" placeholder="Search spells, schools, spheres, text...">
-
-      <div class="class-inline-toggle">
-        <label><input type="checkbox" id="wizard" checked> Wizard</label>
-        <label><input type="checkbox" id="priest" checked> Priest</label>
+  <div class="page-shell">
+    <header class="topbar">
+      <div class="title-wrap">
+        <h1>AD&amp;D 2e Spell Reference</h1>
+        <div class="subtitle">External JSON deployment viewer</div>
       </div>
 
-      <select id="sortFilter" title="Sort results">
-        <option value="level-asc">Sort: Level Low–High</option>
-        <option value="name-asc">Sort: Name A–Z</option>
-        <option value="name-desc">Sort: Name Z–A</option>
-        <option value="level-desc">Sort: Level High–Low</option>
-      </select>
+      <div class="toolbar">
+        <input type="text" id="searchInput" placeholder="Search spells, schools, spheres, text...">
 
-      <button id="resetFilters" type="button">Reset Filters</button>
-    </div>
-  </header>
+        <div class="class-inline-toggle">
+          <label><input type="checkbox" id="wizard" checked> Wizard</label>
+          <label><input type="checkbox" id="priest" checked> Priest</label>
+        </div>
 
-  <section id="filters">
-    <div class="filter-group">
-      <div class="filter-title">Level</div>
-      <select id="levelFilter" multiple size="10" title="Hold Ctrl (or Cmd on Mac) to select multiple levels">
-        <option value="0">0 / Cantrips</option>
-        <option value="1">1</option>
-        <option value="2">2</option>
-        <option value="3">3</option>
-        <option value="4">4</option>
-        <option value="5">5</option>
-        <option value="6">6</option>
-        <option value="7">7</option>
-        <option value="8">8</option>
-        <option value="9">9</option>
-      </select>
-    </div>
+        <select id="sortFilter" title="Sort results">
+          <option value="level-asc">Sort: Level Low–High</option>
+          <option value="name-asc">Sort: Name A–Z</option>
+          <option value="name-desc">Sort: Name Z–A</option>
+          <option value="level-desc">Sort: Level High–Low</option>
+        </select>
 
-    <div class="filter-group">
-      <div class="filter-title">Group</div>
-      <select id="groupFilter" multiple size="6" title="Hold Ctrl (or Cmd on Mac) to select multiple groups">
-      </select>
-    </div>
-
-    <div class="filter-group">
-      <div class="filter-title">Deity</div>
-      <select id="deityFilter" multiple size="6" title="Hold Ctrl (or Cmd on Mac) to select multiple deities">
-      </select>
-    </div>
-
-    <details class="filter-group">
-      <summary>Wizard Schools</summary>
-      <div class="dropdown-content">
-        <label><input type="checkbox" class="tag-filter" data-group="school" value="Abjuration"> Abjuration</label>
-        <label><input type="checkbox" class="tag-filter" data-group="school" value="Alteration"> Alteration</label>
-        <label><input type="checkbox" class="tag-filter" data-group="school" value="Conjuration/Summoning"> Conjuration/Summoning</label>
-        <label><input type="checkbox" class="tag-filter" data-group="school" value="Enchantment/Charm"> Enchantment/Charm</label>
-        <label><input type="checkbox" class="tag-filter" data-group="school" value="Illusion/Phantasm"> Illusion/Phantasm</label>
-        <label><input type="checkbox" class="tag-filter" data-group="school" value="Invocation/Evocation"> Invocation/Evocation</label>
-        <label><input type="checkbox" class="tag-filter" data-group="school" value="Divination"> Divination</label>
-        <label><input type="checkbox" class="tag-filter" data-group="school" value="Necromancy"> Necromancy</label>
-        <label><input type="checkbox" class="tag-filter" data-group="school" value="Wild Magic"> Wild Magic</label>
+        <button id="resetFilters" type="button">Reset Filters</button>
       </div>
-    </details>
+    </header>
 
-    <details class="filter-group">
-      <summary>Priest Spheres</summary>
-      <div class="dropdown-content">
-        <label><input type="checkbox" class="tag-filter" data-group="sphere" value="All"> All</label>
-        <label><input type="checkbox" class="tag-filter" data-group="sphere" value="Animal"> Animal</label>
-        <label><input type="checkbox" class="tag-filter" data-group="sphere" value="Astral"> Astral</label>
-        <label><input type="checkbox" class="tag-filter" data-group="sphere" value="Chaos"> Chaos</label>
-        <label><input type="checkbox" class="tag-filter" data-group="sphere" value="Charm"> Charm</label>
-        <label><input type="checkbox" class="tag-filter" data-group="sphere" value="Combat"> Combat</label>
-        <label><input type="checkbox" class="tag-filter" data-group="sphere" value="Creation"> Creation</label>
-        <label><input type="checkbox" class="tag-filter" data-group="sphere" value="Divination"> Divination</label>
-        <label><input type="checkbox" class="tag-filter" data-group="sphere" value="Guardian"> Guardian</label>
-        <label><input type="checkbox" class="tag-filter" data-group="sphere" value="Healing"> Healing</label>
-        <label><input type="checkbox" class="tag-filter" data-group="sphere" value="Law"> Law</label>
-        <label><input type="checkbox" class="tag-filter" data-group="sphere" value="Necromantic"> Necromantic</label>
-        <label><input type="checkbox" class="tag-filter" data-group="sphere" value="Protection"> Protection</label>
-        <label><input type="checkbox" class="tag-filter" data-group="sphere" value="Summoning"> Summoning</label>
-        <label><input type="checkbox" class="tag-filter" data-group="sphere" value="Sun"> Sun</label>
-        <label><input type="checkbox" class="tag-filter" data-group="sphere" value="Time"> Time</label>
-        <label><input type="checkbox" class="tag-filter" data-group="sphere" value="Travelers"> Travelers</label>
-        <label><input type="checkbox" class="tag-filter" data-group="sphere" value="War"> War</label>
-        <label><input type="checkbox" class="tag-filter" data-group="sphere" value="Wards"> Wards</label>
-        <label><input type="checkbox" class="tag-filter" data-group="sphere" value="Weather"> Weather</label>
+    <section id="filters">
+      <div class="filter-group">
+        <div class="filter-title">Level</div>
+        <select id="levelFilter" multiple size="10" title="Hold Ctrl (or Cmd on Mac) to select multiple levels">
+          <option value="0">0 / Cantrips</option>
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+          <option value="5">5</option>
+          <option value="6">6</option>
+          <option value="7">7</option>
+          <option value="8">8</option>
+          <option value="9">9</option>
+        </select>
       </div>
-    </details>
 
-    <details class="filter-group">
-      <summary>Elemental</summary>
-      <div class="dropdown-content">
-        <label><input type="checkbox" class="tag-filter" data-group="elemental" value="Elemental"> Elemental (All)</label>
-        <label><input type="checkbox" class="tag-filter" data-group="elemental" value="Elemental Air"> Elemental: Air</label>
-        <label><input type="checkbox" class="tag-filter" data-group="elemental" value="Elemental Earth"> Elemental: Earth</label>
-        <label><input type="checkbox" class="tag-filter" data-group="elemental" value="Elemental Fire"> Elemental: Fire</label>
-        <label><input type="checkbox" class="tag-filter" data-group="elemental" value="Elemental Water"> Elemental: Water</label>
-        <label><input type="checkbox" class="tag-filter" data-group="elemental" value="Elemental Shadow"> Elemental: Shadow</label>
+      <div class="filter-group">
+        <div class="filter-title">Group</div>
+        <select id="groupFilter" multiple size="6" title="Hold Ctrl (or Cmd on Mac) to select multiple groups">
+        </select>
       </div>
-    </details>
-  </section>
 
-  <section class="app-shell">
-    <aside class="results-pane">
-      <div class="results-header">
-        <div id="resultsCount">Loading spells...</div>
+      <div class="filter-group">
+        <div class="filter-title">Deity</div>
+        <select id="deityFilter" multiple size="6" title="Hold Ctrl (or Cmd on Mac) to select multiple deities">
+        </select>
       </div>
-      <div id="spellList" class="spell-list"></div>
-    </aside>
 
-    <main class="detail-pane">
-      <div id="spellDetail" class="spell-detail empty-state">
-        <div class="empty-message">Select a spell from the list to view details.</div>
-      </div>
-    </main>
-  </section>
+      <details class="filter-group">
+        <summary>Wizard Schools</summary>
+        <div class="dropdown-content">
+          <label><input type="checkbox" class="tag-filter" data-group="school" value="Abjuration"> Abjuration</label>
+          <label><input type="checkbox" class="tag-filter" data-group="school" value="Alteration"> Alteration</label>
+          <label><input type="checkbox" class="tag-filter" data-group="school" value="Conjuration/Summoning"> Conjuration/Summoning</label>
+          <label><input type="checkbox" class="tag-filter" data-group="school" value="Enchantment/Charm"> Enchantment/Charm</label>
+          <label><input type="checkbox" class="tag-filter" data-group="school" value="Illusion/Phantasm"> Illusion/Phantasm</label>
+          <label><input type="checkbox" class="tag-filter" data-group="school" value="Invocation/Evocation"> Invocation/Evocation</label>
+          <label><input type="checkbox" class="tag-filter" data-group="school" value="Divination"> Divination</label>
+          <label><input type="checkbox" class="tag-filter" data-group="school" value="Necromancy"> Necromancy</label>
+          <label><input type="checkbox" class="tag-filter" data-group="school" value="Wild Magic"> Wild Magic</label>
+        </div>
+      </details>
+
+      <details class="filter-group">
+        <summary>Priest Spheres</summary>
+        <div class="dropdown-content">
+          <label><input type="checkbox" class="tag-filter" data-group="sphere" value="All"> All</label>
+          <label><input type="checkbox" class="tag-filter" data-group="sphere" value="Animal"> Animal</label>
+          <label><input type="checkbox" class="tag-filter" data-group="sphere" value="Astral"> Astral</label>
+          <label><input type="checkbox" class="tag-filter" data-group="sphere" value="Chaos"> Chaos</label>
+          <label><input type="checkbox" class="tag-filter" data-group="sphere" value="Charm"> Charm</label>
+          <label><input type="checkbox" class="tag-filter" data-group="sphere" value="Combat"> Combat</label>
+          <label><input type="checkbox" class="tag-filter" data-group="sphere" value="Creation"> Creation</label>
+          <label><input type="checkbox" class="tag-filter" data-group="sphere" value="Divination"> Divination</label>
+          <label><input type="checkbox" class="tag-filter" data-group="sphere" value="Guardian"> Guardian</label>
+          <label><input type="checkbox" class="tag-filter" data-group="sphere" value="Healing"> Healing</label>
+          <label><input type="checkbox" class="tag-filter" data-group="sphere" value="Law"> Law</label>
+          <label><input type="checkbox" class="tag-filter" data-group="sphere" value="Necromantic"> Necromantic</label>
+          <label><input type="checkbox" class="tag-filter" data-group="sphere" value="Protection"> Protection</label>
+          <label><input type="checkbox" class="tag-filter" data-group="sphere" value="Summoning"> Summoning</label>
+          <label><input type="checkbox" class="tag-filter" data-group="sphere" value="Sun"> Sun</label>
+          <label><input type="checkbox" class="tag-filter" data-group="sphere" value="Time"> Time</label>
+          <label><input type="checkbox" class="tag-filter" data-group="sphere" value="Travelers"> Travelers</label>
+          <label><input type="checkbox" class="tag-filter" data-group="sphere" value="War"> War</label>
+          <label><input type="checkbox" class="tag-filter" data-group="sphere" value="Wards"> Wards</label>
+          <label><input type="checkbox" class="tag-filter" data-group="sphere" value="Weather"> Weather</label>
+        </div>
+      </details>
+
+      <details class="filter-group">
+        <summary>Elemental</summary>
+        <div class="dropdown-content">
+          <label><input type="checkbox" class="tag-filter" data-group="elemental" value="Elemental"> Elemental (All)</label>
+          <label><input type="checkbox" class="tag-filter" data-group="elemental" value="Elemental Air"> Elemental: Air</label>
+          <label><input type="checkbox" class="tag-filter" data-group="elemental" value="Elemental Earth"> Elemental: Earth</label>
+          <label><input type="checkbox" class="tag-filter" data-group="elemental" value="Elemental Fire"> Elemental: Fire</label>
+          <label><input type="checkbox" class="tag-filter" data-group="elemental" value="Elemental Water"> Elemental: Water</label>
+          <label><input type="checkbox" class="tag-filter" data-group="elemental" value="Elemental Shadow"> Elemental: Shadow</label>
+        </div>
+      </details>
+    </section>
+
+    <section class="app-shell">
+      <aside class="results-pane">
+        <div class="results-header">
+          <div id="resultsCount">Loading spells...</div>
+        </div>
+        <div id="spellList" class="spell-list"></div>
+      </aside>
+
+      <main class="detail-pane">
+        <div id="spellDetail" class="spell-detail empty-state">
+          <div class="empty-message">Select a spell from the list to view details.</div>
+        </div>
+      </main>
+    </section>
+  </div>
 
   <script src="script.js"></script>
 </body>
