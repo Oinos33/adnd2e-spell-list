@@ -1,596 +1,487 @@
-let spells = [];
-let filteredSpells = [];
-let selectedSpellId = null;
+:root {
+  --bg: #d8d1c3;
+  --panel: #f5f0e6;
+  --panel-2: #efe6d6;
+  --card: #fbf8f2;
+  --border: #8d7b5a;
+  --border-dark: #5d4d36;
+  --text: #1f1a14;
+  --muted: #5d5447;
+  --accent: #6e4b1f;
+  --accent-2: #8b5e2b;
+  --shadow: rgba(0, 0, 0, 0.16);
+}
 
-async function loadSpells() {
-  const count = document.getElementById("resultsCount");
-  const list = document.getElementById("spellList");
+* {
+  box-sizing: border-box;
+}
 
-  try {
-    count.textContent = "Loading spells...";
-    const response = await fetch("./AD&D2e_Master_Spell_List.json?v=13");
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: Georgia, "Times New Roman", serif;
+}
 
-    if (!response.ok) {
-      throw new Error(`Fetch failed: ${response.status}`);
-    }
+body {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
 
-    const rawData = await response.json();
+.page-shell {
+  width: min(100%, 1089px);
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
 
-    if (!Array.isArray(rawData)) {
-      throw new Error("JSON root is not an array.");
-    }
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: 10px;
+  padding: 8px 12px 10px;
+  background: linear-gradient(to bottom, #4d3721 0%, #634728 100%);
+  color: #f8f2e8;
+  border-bottom: 2px solid #3f2c18;
+  box-shadow: 0 2px 10px var(--shadow);
+}
 
-    spells = rawData.map((spell, index) => ({
-      ...spell,
-      _internalId: spell.spell_id || `spell-${index}`
-    }));
+.title-wrap h1 {
+  margin: 0;
+  font-size: 1.8rem;
+  line-height: 1.1;
+  letter-spacing: 0.02em;
+}
 
-    populateDropdown("groupFilter", spells.flatMap(getGroups), "All Groups");
-    populateDropdown("deityFilter", spells.flatMap(getDeities), "All Deities");
+.subtitle {
+  margin-top: 6px;
+  font-size: 0.95rem;
+  color: #eadcc7;
+}
 
-    applyFilters();
-  } catch (error) {
-    console.error("LOAD ERROR:", error);
-    renderEmptyDetail(`Failed to load spell data. ${error.message}`);
-    if (list) list.innerHTML = `<div class="empty-list">Failed to load spell data.</div>`;
-    if (count) count.textContent = "Load failed";
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: flex-end;
+  align-items: center;
+  align-content: center;
+}
+
+.class-inline-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 12px;
+  width: auto;
+  min-width: 0;
+  max-width: none;
+  padding: 6px 10px;
+  border: 1px solid var(--border-dark);
+  border-radius: 6px;
+  background: #fffdfa;
+  color: var(--text);
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+.class-inline-toggle label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  width: auto;
+  min-width: 0;
+  max-width: none;
+  font-size: 0.95rem;
+  color: var(--text);
+  white-space: nowrap;
+  flex: 0 0 auto;
+}
+
+.class-inline-toggle input[type="checkbox"] {
+  width: auto;
+  min-width: 0;
+  max-width: none;
+  height: auto;
+  margin: 0;
+  padding: 0;
+  flex: 0 0 auto;
+  box-shadow: none;
+  background: transparent;
+}
+
+#searchInput,
+.toolbar select,
+.toolbar button,
+#levelFilter,
+.filter-group input[type="text"],
+.filter-group select {
+  padding: 9px 10px;
+  border: 1px solid var(--border-dark);
+  border-radius: 6px;
+  background: #fffdfa;
+  color: var(--text);
+  font-size: 0.95rem;
+  font-family: inherit;
+}
+
+#searchInput {
+  min-width: 220px;
+}
+
+#levelFilter[multiple],
+#groupFilter[multiple],
+#deityFilter[multiple] {
+  height: 4.75em;
+  width: 100%;
+  padding: 6px;
+}
+
+#levelFilter[multiple] option,
+#groupFilter[multiple] option,
+#deityFilter[multiple] option {
+  padding: 4px 6px;
+}
+
+.toolbar button {
+  background: linear-gradient(to bottom, #8a6230, #6c4a22);
+  color: #fff7ea;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.toolbar button:hover {
+  filter: brightness(1.05);
+}
+
+#searchInput:focus,
+.toolbar select:focus,
+.toolbar button:focus,
+#levelFilter:focus,
+.filter-group input[type="text"]:focus,
+.filter-group select:focus,
+.class-inline-toggle input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(110, 75, 31, 0.15);
+}
+
+#filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 10px 14px;
+  background: var(--panel-2);
+  border-bottom: 1px solid var(--border);
+  align-items: flex-start;
+}
+
+.filter-group {
+  min-width: 130px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 10px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.filter-title,
+.filter-group summary {
+  font-weight: bold;
+  color: #3b2d1f;
+  margin-bottom: 8px;
+}
+
+.filter-group summary {
+  cursor: pointer;
+}
+
+.filter-group label {
+  display: block;
+  margin: 5px 0;
+  font-size: 0.95rem;
+  color: var(--text);
+}
+
+.filter-group input[type="text"] {
+  width: 100%;
+}
+
+.dropdown-content {
+  padding-top: 6px;
+}
+
+.app-shell {
+  display: grid;
+  grid-template-columns: 310px 1fr;
+  gap: 14px;
+  padding: 14px 18px 18px;
+  align-items: start;
+}
+
+.results-pane,
+.detail-pane {
+  min-height: 0;
+  position: sticky;
+  top: 12px;
+  max-height: calc(100vh - 24px);
+}
+
+.results-pane {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: 0 2px 8px var(--shadow);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-height: 0;
+}
+
+.results-header {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+  background: linear-gradient(to bottom, #eadfcf, #deceb6);
+  font-weight: bold;
+  color: #3f301f;
+}
+
+.spell-list {
+  overflow-y: auto;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+  min-height: 0;
+}
+
+.spell-list-item {
+  text-align: left;
+  padding: 10px 12px;
+  border: 1px solid #bca98b;
+  border-radius: 8px;
+  background: #fffdfa;
+  cursor: pointer;
+  color: var(--text);
+  font-family: inherit;
+  transition: transform 0.08s ease, border-color 0.12s ease, background 0.12s ease;
+}
+
+.spell-list-item:hover {
+  background: #f8efdf;
+  border-color: var(--accent-2);
+  transform: translateY(-1px);
+}
+
+.spell-list-item.active {
+  background: #f0e0c6;
+  border-color: var(--accent);
+  box-shadow: inset 0 0 0 1px rgba(110, 75, 31, 0.18);
+}
+
+.spell-list-name {
+  font-size: 1.02rem;
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+
+.spell-list-meta {
+  font-size: 0.9rem;
+  color: #4d4032;
+  margin-bottom: 3px;
+}
+
+.spell-list-submeta {
+  font-size: 0.86rem;
+  color: var(--muted);
+}
+
+.detail-pane {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: 0 2px 8px var(--shadow);
+  overflow: hidden;
+  min-height: 0;
+}
+
+.spell-detail {
+  overflow-y: auto;
+  padding: 18px 20px 24px;
+  min-height: 0;
+  max-height: calc(100vh - 48px);
+}
+
+.detail-header {
+  padding-bottom: 10px;
+  margin-bottom: 12px;
+  border-bottom: 2px solid #c7b18c;
+}
+
+.detail-header h2 {
+  margin: 0;
+  font-size: 2rem;
+  line-height: 1.1;
+  color: #352617;
+}
+
+.detail-subtitle {
+  margin-top: 8px;
+  font-size: 1rem;
+  color: #5f4b37;
+  line-height: 1.4;
+}
+
+.detail-block {
+  margin-bottom: 12px;
+  padding: 10px;
+  border: 1px solid #cfb995;
+  border-radius: 8px;
+  background: var(--card);
+}
+
+.section-title {
+  font-size: 1.05rem;
+  font-weight: bold;
+  color: #4e361c;
+  margin-bottom: 10px;
+}
+
+.meta-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 10px;
+}
+
+.meta-row {
+  background: #fffdfa;
+  border: 1px solid #d8c4a2;
+  border-radius: 6px;
+  padding: 8px 10px;
+}
+
+.meta-label {
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #775d3f;
+  margin-bottom: 3px;
+}
+
+.meta-value {
+  font-size: 0.98rem;
+  color: var(--text);
+  line-height: 1.35;
+}
+
+.tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tag {
+  display: inline-block;
+  padding: 5px 10px;
+  background: #ead9bf;
+  border: 1px solid #b89363;
+  border-radius: 999px;
+  font-size: 0.9rem;
+  color: #4a3419;
+}
+
+.description-text {
+  white-space: pre-wrap;
+  line-height: 1.55;
+  font-size: 1rem;
+  color: #231d16;
+}
+
+.source-link {
+  color: #6a3f0e;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+.source-link:hover {
+  text-decoration: underline;
+}
+
+.empty-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+}
+
+.empty-message,
+.empty-list {
+  color: #5c5144;
+  font-size: 1rem;
+  text-align: center;
+  padding: 24px;
+}
+
+@media (max-width: 1100px) {
+  .page-shell {
+    width: 100%;
+    max-width: none;
+  }
+
+  .app-shell {
+    grid-template-columns: 1fr;
+    overflow: visible;
+  }
+
+  .results-pane,
+  .detail-pane {
+    position: static;
+    max-height: none;
+    min-height: auto;
+    height: auto;
+  }
+
+  .spell-list {
+    max-height: 320px;
+    flex: none;
+  }
+
+  .spell-detail {
+    max-height: none;
+    padding: 14px 16px 18px;
+  }
+
+  .toolbar {
+    justify-content: flex-start;
   }
 }
 
-function normalizeText(value) {
-  if (value === null || value === undefined) return "";
-  return String(value).replace(/\s+/g, " ").trim();
-}
-
-function escapeHtml(value) {
-  return normalizeText(value)
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
-}
-
-function titleCase(value) {
-  return normalizeText(value)
-    .toLowerCase()
-    .replace(/\b\w/g, ch => ch.toUpperCase());
-}
-
-function asArray(value) {
-  if (Array.isArray(value)) return value;
-  if (value === null || value === undefined || value === "") return [];
-  return [value];
-}
-
-function splitTags(value) {
-  return asArray(value)
-    .flatMap(item => normalizeText(item).split(","))
-    .map(item => item.trim())
-    .filter(Boolean);
-}
-
-function getSpellClass(spell) {
-  return normalizeText(spell.class || "").toLowerCase();
-}
-
-function getSpellLevel(spell) {
-  const raw = spell.spell_level;
-  if (raw === null || raw === undefined || raw === "") return "";
-  return String(raw).trim();
-}
-
-function getSpellLevelLabel(spell) {
-  const level = getSpellLevel(spell);
-  return level === "0" ? "Cantrip" : level;
-}
-
-function getSchools(spell) {
-  return splitTags(spell.school);
-}
-
-function getSpheres(spell) {
-  return splitTags(spell.sphere);
-}
-
-function getGroups(spell) {
-  return splitTags(spell.group_targets);
-}
-
-function getDeities(spell) {
-  return splitTags(spell.deity_targets);
-}
-
-function getSettings(spell) {
-  return splitTags(spell.setting_targets);
-}
-
-function getComponents(spell) {
-  return splitTags(spell.components);
-}
-
-function getElementalTags(spell) {
-  const tags = new Set();
-
-  if (spell.elemental === true || (spell.tags && spell.tags.elemental === true)) {
-    tags.add("Elemental");
+@media (max-width: 700px) {
+  .topbar {
+    flex-direction: column;
+    align-items: stretch;
   }
 
-  [...getSchools(spell), ...getSpheres(spell)].forEach(value => {
-    const lower = value.toLowerCase();
-    if (lower.includes("elemental")) {
-      tags.add("Elemental");
-      if (lower.includes("air")) tags.add("Elemental Air");
-      if (lower.includes("earth")) tags.add("Elemental Earth");
-      if (lower.includes("fire")) tags.add("Elemental Fire");
-      if (lower.includes("water")) tags.add("Elemental Water");
-      if (lower.includes("shadow")) tags.add("Elemental Shadow");
-    }
-  });
-
-  return [...tags];
-}
-
-function getSearchBlob(spell) {
-  const values = [
-    spell.name,
-    spell.spell_id,
-    spell.class,
-    spell.cantrip_category,
-    spell.range,
-    spell.area_of_effect,
-    spell.casting_time,
-    spell.source,
-    spell.description,
-    spell.notes,
-    spell.duration,
-    spell.saving_throw,
-    ...getComponents(spell),
-    ...getSchools(spell),
-    ...getSpheres(spell),
-    ...getElementalTags(spell),
-    ...getGroups(spell),
-    ...getSettings(spell),
-    ...getDeities(spell)
-  ];
-
-  return values.map(normalizeText).join(" ").toLowerCase();
-}
-
-function compareByNameAsc(a, b) {
-  return normalizeText(a.name).localeCompare(normalizeText(b.name));
-}
-
-function compareByNameDesc(a, b) {
-  return normalizeText(b.name).localeCompare(normalizeText(a.name));
-}
-
-function compareByLevelAsc(a, b) {
-  const levelA = Number.parseFloat(getSpellLevel(a));
-  const levelB = Number.parseFloat(getSpellLevel(b));
-  const safeA = Number.isNaN(levelA) ? 999 : levelA;
-  const safeB = Number.isNaN(levelB) ? 999 : levelB;
-
-  if (safeA !== safeB) return safeA - safeB;
-  return compareByNameAsc(a, b);
-}
-
-function compareByLevelDesc(a, b) {
-  const levelA = Number.parseFloat(getSpellLevel(a));
-  const levelB = Number.parseFloat(getSpellLevel(b));
-  const safeA = Number.isNaN(levelA) ? -1 : levelA;
-  const safeB = Number.isNaN(levelB) ? -1 : levelB;
-
-  if (safeA !== safeB) return safeB - safeA;
-  return compareByNameAsc(a, b);
-}
-
-function getSelectedCheckboxValues(groupName) {
-  return Array.from(document.querySelectorAll(`.tag-filter[data-group="${groupName}"]:checked`))
-    .map(input => normalizeText(input.value).toLowerCase());
-}
-
-function getSelectedSelectValues(selectId) {
-  const select = document.getElementById(selectId);
-  if (!select) return [];
-
-  return Array.from(select.selectedOptions)
-    .map(option => normalizeText(option.value).toLowerCase())
-    .filter(Boolean);
-}
-
-function populateDropdown(selectId, values, placeholder) {
-  const select = document.getElementById(selectId);
-  if (!select) return;
-
-  const currentValues = Array.from(select.selectedOptions || [])
-    .map(option => normalizeText(option.value));
-
-  const uniqueValues = [...new Set(values.map(normalizeText).filter(Boolean))]
-    .sort((a, b) => a.localeCompare(b));
-
-  select.innerHTML = "";
-
-  if (selectId === "deityFilter") {
-    const noDeityOption = document.createElement("option");
-    noDeityOption.value = "__NO_DEITY__";
-    noDeityOption.textContent = "No Deity / Non-deity-specific";
-    select.appendChild(noDeityOption);
+  .toolbar {
+    justify-content: flex-start;
   }
 
-  uniqueValues.forEach(value => {
-    const option = document.createElement("option");
-    option.value = value;
-    option.textContent = value;
-    if (currentValues.includes(value)) {
-      option.selected = true;
-    }
-    select.appendChild(option);
-  });
-
-  if (selectId === "deityFilter" && currentValues.includes("__NO_DEITY__")) {
-    const noDeityOption = Array.from(select.options).find(opt => opt.value === "__NO_DEITY__");
-    if (noDeityOption) noDeityOption.selected = true;
-  }
-}
-
-function collapseDetailsForGroup(groupName) {
-  const input = document.querySelector(`.tag-filter[data-group="${groupName}"]`);
-  if (!input) return;
-
-  const details = input.closest("details");
-  if (details) {
-    details.open = false;
-  }
-}
-
-function applyFilters() {
-  const searchTerm = normalizeText(document.getElementById("searchInput").value).toLowerCase();
-  const wizardChecked = document.getElementById("wizard").checked;
-  const priestChecked = document.getElementById("priest").checked;
-  const selectedLevels = getSelectedSelectValues("levelFilter");
-  const sortFilter = document.getElementById("sortFilter").value;
-  const selectedGroups = getSelectedSelectValues("groupFilter");
-  const selectedDeities = getSelectedSelectValues("deityFilter");
-
-  const noDeitySelected = selectedDeities.includes("__no_deity__");
-  const explicitDeities = selectedDeities.filter(value => value !== "__no_deity__");
-
-  const selectedSchools = getSelectedCheckboxValues("school");
-  const selectedSpheres = getSelectedCheckboxValues("sphere");
-  const selectedElementals = getSelectedCheckboxValues("elemental");
-
-  filteredSpells = spells.filter(spell => {
-    const spellClass = getSpellClass(spell);
-    const spellLevel = getSpellLevel(spell);
-    const schools = getSchools(spell).map(v => v.toLowerCase());
-    const spheres = getSpheres(spell).map(v => v.toLowerCase());
-    const elementalTags = getElementalTags(spell).map(v => v.toLowerCase());
-    const groups = getGroups(spell).map(v => v.toLowerCase());
-    const deities = getDeities(spell).map(v => v.toLowerCase());
-    const blob = getSearchBlob(spell);
-
-    if (!wizardChecked && !priestChecked) return false;
-    if (!wizardChecked && spellClass === "wizard") return false;
-    if (!priestChecked && spellClass === "priest") return false;
-
-    if (selectedLevels.length && !selectedLevels.includes(spellLevel.toLowerCase())) return false;
-    if (searchTerm && !blob.includes(searchTerm)) return false;
-
-    if (selectedGroups.length && !groups.some(item => selectedGroups.includes(item))) return false;
-
-    if (selectedDeities.length) {
-      const matchesNamedDeity =
-        explicitDeities.length && deities.some(item => explicitDeities.includes(item));
-
-      const matchesNoDeity =
-        noDeitySelected && deities.length === 0 && spell.deity_specific !== true;
-
-      if (!matchesNamedDeity && !matchesNoDeity) return false;
-    }
-
-    if (selectedSchools.length && !selectedSchools.some(item => schools.includes(item))) return false;
-    if (selectedSpheres.length && !selectedSpheres.some(item => spheres.includes(item))) return false;
-    if (selectedElementals.length && !selectedElementals.some(item => elementalTags.includes(item))) return false;
-
-    return true;
-  });
-
-  switch (sortFilter) {
-    case "name-desc":
-      filteredSpells.sort(compareByNameDesc);
-      break;
-    case "level-desc":
-      filteredSpells.sort(compareByLevelDesc);
-      break;
-    case "name-asc":
-      filteredSpells.sort(compareByNameAsc);
-      break;
-    case "level-asc":
-    default:
-      filteredSpells.sort(compareByLevelAsc);
-      break;
+  #searchInput {
+    min-width: 0;
+    width: 100%;
   }
 
-  renderSpellList(filteredSpells);
-  updateResultsCount(filteredSpells.length);
-
-  if (!filteredSpells.length) {
-    selectedSpellId = null;
-    renderEmptyDetail("No spells matched your filters.");
-    return;
-  }
-
-  const stillVisible = filteredSpells.find(spell => spell._internalId === selectedSpellId);
-  if (stillVisible) {
-    renderSpellDetail(stillVisible);
-    highlightActiveSpell();
-
-    requestAnimationFrame(() => {
-      scrollActiveSpellIntoView();
-    });
-  } else {
-    selectSpell(filteredSpells[0]._internalId);
+  .class-inline-toggle {
+    width: auto;
+    max-width: 100%;
   }
 }
-
-function updateResultsCount(count) {
-  const resultsCount = document.getElementById("resultsCount");
-  if (!resultsCount) return;
-  resultsCount.textContent = `${count} spell${count === 1 ? "" : "s"}`;
-}
-
-function renderSpellList(spellArray) {
-  const list = document.getElementById("spellList");
-  list.innerHTML = "";
-
-  if (!spellArray.length) {
-    list.innerHTML = `<div class="empty-list">No spells found.</div>`;
-    return;
-  }
-
-  spellArray.forEach(spell => {
-    const button = document.createElement("button");
-    button.type = "button";
-    button.className = "spell-list-item";
-    button.dataset.spellId = spell._internalId;
-
-    const schools = getSchools(spell).join(", ");
-    const spheres = getSpheres(spell).join(", ");
-    const levelLabel = getSpellLevelLabel(spell);
-    const classLabel = titleCase(spell.class || "");
-
-    button.innerHTML = `
-      <div class="spell-list-name">${escapeHtml(spell.name)}</div>
-      <div class="spell-list-meta">
-        ${escapeHtml(classLabel)}${levelLabel !== "" ? ` • ${escapeHtml(levelLabel === "Cantrip" ? "Cantrip" : `Lvl ${levelLabel}`)}` : ""}
-      </div>
-      <div class="spell-list-submeta">
-        ${escapeHtml(schools || spheres || spell.cantrip_category || "")}
-      </div>
-    `;
-
-    button.addEventListener("click", () => selectSpell(spell._internalId));
-    list.appendChild(button);
-  });
-
-  highlightActiveSpell();
-}
-
-function highlightActiveSpell() {
-  const buttons = document.querySelectorAll(".spell-list-item");
-  buttons.forEach(button => {
-    if (button.dataset.spellId === selectedSpellId) {
-      button.classList.add("active");
-    } else {
-      button.classList.remove("active");
-    }
-  });
-}
-
-function scrollActiveSpellIntoView() {
-  const activeButton = document.querySelector(".spell-list-item.active");
-  if (!activeButton) return;
-
-  activeButton.scrollIntoView({
-    behavior: "smooth",
-    block: "nearest",
-    inline: "nearest"
-  });
-}
-
-function selectSpell(spellId) {
-  selectedSpellId = spellId;
-
-  const spell =
-    filteredSpells.find(item => item._internalId === spellId) ||
-    spells.find(item => item._internalId === spellId);
-
-  highlightActiveSpell();
-
-  if (spell) {
-    renderSpellDetail(spell);
-
-    requestAnimationFrame(() => {
-      scrollActiveSpellIntoView();
-    });
-  } else {
-    renderEmptyDetail("Spell not found.");
-  }
-}
-
-function renderEmptyDetail(message) {
-  const detail = document.getElementById("spellDetail");
-  detail.className = "spell-detail empty-state";
-  detail.innerHTML = `<div class="empty-message">${escapeHtml(message)}</div>`;
-}
-
-function renderField(label, value) {
-  const clean = normalizeText(value);
-  if (!clean) return "";
-  return `
-    <div class="meta-row">
-      <div class="meta-label">${escapeHtml(label)}</div>
-      <div class="meta-value">${escapeHtml(clean)}</div>
-    </div>
-  `;
-}
-
-function renderTagList(label, values) {
-  const cleanValues = values.map(normalizeText).filter(Boolean);
-  if (!cleanValues.length) return "";
-
-  return `
-    <div class="detail-block">
-      <div class="section-title">${escapeHtml(label)}</div>
-      <div class="tag-list">
-        ${cleanValues.map(value => `<span class="tag">${escapeHtml(value)}</span>`).join("")}
-      </div>
-    </div>
-  `;
-}
-
-function renderSpellDetail(spell) {
-  const detail = document.getElementById("spellDetail");
-
-  const schools = getSchools(spell);
-  const spheres = getSpheres(spell);
-  const elementalTags = getElementalTags(spell);
-  const components = getComponents(spell);
-  const groupTargets = getGroups(spell);
-  const settingTargets = getSettings(spell);
-  const deityTargets = getDeities(spell);
-  const fandomUrl = normalizeText(spell.fandom_url);
-  const levelLabel = getSpellLevelLabel(spell);
-
-  const classPart = titleCase(spell.class || "");
-  const levelPart =
-    levelLabel !== ""
-      ? (levelLabel === "Cantrip" ? "Cantrip" : `Level ${levelLabel}`)
-      : "";
-
-  const subtitleParts = [
-    classPart,
-    levelPart,
-    spell.cantrip_category ? normalizeText(spell.cantrip_category) : "",
-    schools.length ? `School: ${schools.join(", ")}` : "",
-    spheres.length ? `Sphere: ${spheres.join(", ")}` : ""
-  ].filter(Boolean);
-
-  const coreStatsHtml = `
-    <div class="detail-block">
-      <div class="section-title">Core Stats</div>
-      <div class="meta-grid">
-        ${renderField("Range", spell.range)}
-        ${renderField("Area of Effect", spell.area_of_effect)}
-        ${renderField("Casting Time", spell.casting_time)}
-        ${renderField("Duration", spell.duration)}
-        ${renderField("Saving Throw", spell.saving_throw)}
-        ${renderField("Components", components.join(", "))}
-      </div>
-    </div>
-  `;
-
-  const descriptionHtml = `
-    <div class="detail-block">
-      <div class="section-title">Description</div>
-      <div class="description-text">${escapeHtml(spell.description || "No description available.")}</div>
-    </div>
-  `;
-
-  const referenceRows = [
-    renderField("Source", spell.source),
-    renderField("Notes", spell.notes)
-  ].filter(Boolean).join("");
-
-  const referencesHtml = referenceRows
-    ? `
-      <div class="detail-block">
-        <div class="section-title">Reference</div>
-        <div class="meta-grid">
-          ${referenceRows}
-        </div>
-      </div>
-    `
-    : "";
-
-  detail.className = "spell-detail";
-  detail.innerHTML = `
-    <div class="detail-header">
-      <h2>${escapeHtml(spell.name)}</h2>
-      <div class="detail-subtitle">
-        ${escapeHtml(subtitleParts.join(" • "))}
-      </div>
-    </div>
-
-    ${coreStatsHtml}
-
-    ${descriptionHtml}
-
-    ${referencesHtml}
-
-    ${renderTagList("Elemental", elementalTags)}
-    ${renderTagList("Deity Targets", deityTargets)}
-    ${renderTagList("Group Targets", groupTargets)}
-    ${renderTagList("Setting Targets", settingTargets)}
-
-    ${fandomUrl ? `
-      <div class="detail-block">
-        <div class="section-title">Source Link</div>
-        <div><a class="source-link" href="${escapeHtml(fandomUrl)}" target="_blank" rel="noopener noreferrer">Open Fandom entry</a></div>
-      </div>
-    ` : ""}
-  `;
-}
-
-function resetFilters() {
-  document.getElementById("searchInput").value = "";
-  document.getElementById("wizard").checked = true;
-  document.getElementById("priest").checked = true;
-
-  Array.from(document.getElementById("levelFilter").options).forEach(option => {
-    option.selected = false;
-  });
-
-  document.getElementById("sortFilter").value = "level-asc";
-
-  Array.from(document.getElementById("groupFilter").options).forEach(option => {
-    option.selected = false;
-  });
-
-  Array.from(document.getElementById("deityFilter").options).forEach(option => {
-    option.selected = false;
-  });
-
-  document.querySelectorAll(".tag-filter").forEach(input => {
-    input.checked = false;
-  });
-
-  document.querySelectorAll("details.filter-group").forEach(details => {
-    details.open = false;
-  });
-
-  applyFilters();
-}
-
-document.getElementById("searchInput").addEventListener("input", applyFilters);
-document.getElementById("wizard").addEventListener("change", applyFilters);
-document.getElementById("priest").addEventListener("change", applyFilters);
-document.getElementById("levelFilter").addEventListener("change", applyFilters);
-document.getElementById("sortFilter").addEventListener("change", applyFilters);
-document.getElementById("groupFilter").addEventListener("change", applyFilters);
-document.getElementById("deityFilter").addEventListener("change", applyFilters);
-
-document.querySelectorAll(".tag-filter").forEach(input => {
-  input.addEventListener("change", event => {
-    applyFilters();
-
-    const groupName = event.target.dataset.group;
-    if (groupName === "school" || groupName === "sphere" || groupName === "elemental") {
-      collapseDetailsForGroup(groupName);
-    }
-  });
-});
-
-document.getElementById("resetFilters").addEventListener("click", resetFilters);
-
-loadSpells();
