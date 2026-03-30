@@ -31,6 +31,14 @@ body {
   flex-direction: column;
 }
 
+.page-shell {
+  width: min(100%, 1089px);
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
 .topbar {
   display: flex;
   justify-content: space-between;
@@ -65,7 +73,6 @@ body {
   align-content: center;
 }
 
-/* Class toggle in top toolbar */
 .class-inline-toggle {
   display: inline-flex;
   align-items: center;
@@ -111,7 +118,6 @@ body {
   background: transparent;
 }
 
-/* Only style the actual search box, not all toolbar inputs */
 #searchInput,
 .toolbar select,
 .toolbar button,
@@ -426,6 +432,11 @@ body {
 }
 
 @media (max-width: 1100px) {
+  .page-shell {
+    width: 100%;
+    max-width: none;
+  }
+
   .app-shell {
     grid-template-columns: 1fr;
     overflow: visible;
@@ -443,7 +454,7 @@ body {
   }
 
   .spell-detail {
-  padding: 14px 16px 18px;
+    padding: 14px 16px 18px;
   }
 
   .toolbar {
