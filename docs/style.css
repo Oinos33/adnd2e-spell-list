@@ -35,8 +35,8 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: end;
-  gap: 18px;
-  padding: 18px 22px 14px;
+  gap: 10px;
+  padding: 8px 12px 10px;
   background: linear-gradient(to bottom, #4d3721 0%, #634728 100%);
   color: #f8f2e8;
   border-bottom: 2px solid #3f2c18;
@@ -45,7 +45,7 @@ body {
 
 .title-wrap h1 {
   margin: 0;
-  font-size: 2rem;
+  font-size: 1.8rem;
   line-height: 1.1;
   letter-spacing: 0.02em;
 }
@@ -171,19 +171,19 @@ body {
 #filters {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
-  padding: 14px 18px;
+  gap: 8px;
+  padding: 10px 14px;
   background: var(--panel-2);
   border-bottom: 1px solid var(--border);
   align-items: flex-start;
 }
 
 .filter-group {
-  min-width: 140px;
+  min-width: 130px;
   background: var(--panel);
   border: 1px solid var(--border);
   border-radius: 8px;
-  padding: 10px 12px;
+  padding: 8px 10px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
@@ -215,7 +215,7 @@ body {
 
 .app-shell {
   display: grid;
-  grid-template-columns: 340px 1fr;
+  grid-template-columns: 310px 1fr;
   gap: 14px;
   padding: 14px 18px 18px;
   flex: 1;
@@ -241,7 +241,7 @@ body {
 }
 
 .results-header {
-  padding: 12px 14px;
+  padding: 10px 12px;
   border-bottom: 1px solid var(--border);
   background: linear-gradient(to bottom, #eadfcf, #deceb6);
   font-weight: bold;
@@ -316,8 +316,8 @@ body {
 }
 
 .detail-header {
-  padding-bottom: 14px;
-  margin-bottom: 16px;
+  padding-bottom: 10px;
+  margin-bottom: 12px;
   border-bottom: 2px solid #c7b18c;
 }
 
@@ -336,8 +336,8 @@ body {
 }
 
 .detail-block {
-  margin-bottom: 18px;
-  padding: 14px;
+  margin-bottom: 12px;
+  padding: 10px;
   border: 1px solid #cfb995;
   border-radius: 8px;
   background: var(--card);
@@ -443,7 +443,7 @@ body {
   }
 
   .spell-detail {
-    height: auto;
+  padding: 14px 16px 18px;
   }
 
   .toolbar {
